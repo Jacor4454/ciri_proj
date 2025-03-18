@@ -1,4 +1,5 @@
-CPPFLAGS=-fsanitize=address -g
+CPPFLAGS=
+#-fsanitize=address -g
 COMPILER=g++
 OBJDIR=./objects/
 TENSORDIR=./src/class_tensor/
@@ -9,6 +10,10 @@ project: class_tensor.o main.o
 
 test: test.o
 	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o b $(OBJDIR)test.o $(TENSORDIR)class_tensor.h /usr/lib/libgtest.a
+
+playground:
+	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o c playground.cpp /usr/lib/libgtest.a
+	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o d temp.cpp /usr/lib/libgtest.a
 
 main.o:
 	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)main.o main.cpp
