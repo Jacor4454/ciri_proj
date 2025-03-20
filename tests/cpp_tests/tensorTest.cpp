@@ -14,12 +14,12 @@ class TensorTest : public testing::Test {
 
     TensorTest() {
         // You can do set-up work for each test here.
-        tensor::initaliseThreads();
+        tensor::threads_initaliseThreads();
     }
 
     ~TensorTest() override {
         // You can do clean-up work that doesn't throw exceptions here.
-        tensor::killThreads();
+        tensor::threads_killThreads();
     }
 
     // If the constructor and destructor are not enough for setting up
@@ -44,19 +44,25 @@ TEST_F(TensorTest, MakeTensorSize1DTest) {
     tensor myTensor(dims);
     EXPECT_EQ(myTensor.getN(), 10);
 }
-
 TEST_F(TensorTest, MakeTensorSize2DTest) {
     std::vector<int> dims = {3,4};
     tensor myTensor(dims);
     EXPECT_EQ(myTensor.getN(), 12);
 }
-
 TEST_F(TensorTest, MakeTensorSize3DTest) {
     std::vector<int> dims = {3,4,5};
     tensor myTensor(dims);
     EXPECT_EQ(myTensor.getN(), 60);
 }
-
+TEST_F(TensorTest, ThreadErrorTests) {
+    EXPECT_THROW(tensor::threads_initaliseThreads(), std::runtime_error);
+    tensor::threads_killThreads();
+    EXPECT_THROW(tensor::threads_killThreads(), std::runtime_error);
+    tensor::threads_setWorkers(8);
+    tensor::threads_initaliseThreads();
+    EXPECT_EQ(tensor::threads_getActiveWorkers(), 8);
+    EXPECT_THROW(tensor::threads_setWorkers(4), std::runtime_error);
+}
 TEST_F(TensorTest, TensorAddTest) {
     std::vector<int> dims = {3,4,5};
     tensor myTensor1(dims);

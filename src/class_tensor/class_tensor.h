@@ -28,6 +28,7 @@ class tensor{
         static float* a;
         static float* b;
         static std::function<void(float*, float*, float*, long, long, long, long, int, int)> func;
+        static bool created;
 
         // static initialiser
         static void initaliseThreads();
@@ -36,6 +37,9 @@ class tensor{
         static void setData(float*, float*, float*);
         static void setFunc(std::function<void(float*, float*, float*, long, long, long, long, int, int)>);
         static void doJob();
+        static bool isActive();
+        static void setWorkers(int workers);
+        static int getActiveWorkers();
     } threadManager;
     // static thread manager
 
@@ -51,8 +55,11 @@ class tensor{
     ~tensor();
 
     // static initialiser
-    static void initaliseThreads();
-    static void killThreads();
+    static void threads_initaliseThreads();
+    static void threads_killThreads();
+    static bool threads_isActive();
+    static void threads_setWorkers(int workers);
+    static int threads_getActiveWorkers();
 
     // handlers
     std::vector<int> getDims() const;

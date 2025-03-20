@@ -55,7 +55,7 @@ void handler(bool* alive, int id, int workers, bool* activate, long* n, long* m,
 
 // thread Manager
 // static defs
-int tensor::threadManager::workers = 4;
+int tensor::threadManager::workers = 1;
 std::vector<std::thread> tensor::threadManager::threads(0);
 bool* tensor::threadManager::activates = nullptr;
 bool tensor::threadManager::alive = false;
@@ -67,9 +67,14 @@ float* tensor::threadManager::o = nullptr;
 float* tensor::threadManager::a = nullptr;
 float* tensor::threadManager::b = nullptr;
 std::function<void(float*, float*, float*, long, long, long, long, int, int)> tensor::threadManager::func = add_shadie;
+bool tensor::threadManager::created = false;
 
 // static initialiser
 void tensor::threadManager::initaliseThreads(){
+    if(created)
+        throw std::runtime_error("cannot create threads as they have already been made");
+
+    created = true;
     alive = true;
     
     activates = (bool*)malloc(sizeof(bool) * workers);
@@ -81,6 +86,10 @@ void tensor::threadManager::initaliseThreads(){
     }
 }
 void tensor::threadManager::killThreads(){
+    if(!created)
+        throw std::runtime_error("cannot stop threads as they have already been stopped");
+
+    created = false;
     alive = false;
 
     for(int i = 0; i < workers; i++){
@@ -117,8 +126,14 @@ void tensor::threadManager::doJob(){
                 all = false;
     }
 }
+bool tensor::threadManager::isActive(){return created;}
+void tensor::threadManager::setWorkers(int workers_){
+    if(created)
+        throw std::runtime_error("cannot change thread count they have been made");
 
-
+    workers = workers_;
+}
+int tensor::threadManager::getActiveWorkers(){return threads.size();}
 
 
 
@@ -148,13 +163,16 @@ tensor::~tensor(){
     free(contents);
 }
 
-void tensor::initaliseThreads(){threadManager::initaliseThreads();}
-void tensor::killThreads(){threadManager::killThreads();}
+void tensor::threads_initaliseThreads(){threadManager::initaliseThreads();}
+void tensor::threads_killThreads(){threadManager::killThreads();}
+bool tensor::threads_isActive(){return threadManager::isActive();}
+void tensor::threads_setWorkers(int workers){threadManager::setWorkers(workers);}
+int tensor::threads_getActiveWorkers(){return threadManager::getActiveWorkers();}
 
 // handlers
-std::vector<int> tensor::getDims() const{return dims;};
-long tensor::getN() const{return N;};
-float* tensor::getContents() const{return contents;};
+std::vector<int> tensor::getDims() const{return dims;}
+long tensor::getN() const{return N;}
+float* tensor::getContents() const{return contents;}
 
 // functions
 tensor tensor::operator+(const tensor& t){
@@ -253,8 +271,8 @@ tensor tensor::operator^(const tensor& t){
     // return
     return output;
 }
-float& tensor::operator[](const int& i_){return contents[i_];};
-const float& tensor::operator[](const int& i_) const{return contents[i_];};
+float& tensor::operator[](const int& i_){return contents[i_];}
+const float& tensor::operator[](const int& i_) const{return contents[i_];}
 bool tensor::operator==(const tensor& t){
     if(t.getDims() != dims)
         return false;
