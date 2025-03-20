@@ -160,7 +160,7 @@ TEST_F(TensorTest, Tensor3DMultTestN) {
         myTensor2.getContents()[i] = i+1;
     tensor myTensor3(dims3);
     std::vector<float> data = {30,70,110,382,486,590};
-    for(int i = 0; i < 12; i++)
+    for(int i = 0; i < 6; i++)
         myTensor3.getContents()[i] = data[i];
     tensor myTensor4 = myTensor1 ^ myTensor2;
     EXPECT_EQ(myTensor4 == myTensor3, true);

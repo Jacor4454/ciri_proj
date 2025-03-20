@@ -14,19 +14,30 @@
 class tensor{
     // variable definition
     private:
+
+    static struct threadManager {
+        static int workers;
+        static std::vector<std::thread> threads;
+        static bool* activates;
+        static bool alive;
+        static long n;
+        static long m;
+        static long k;
+        static long block;
+        static float* o;
+        static float* a;
+        static float* b;
+        static std::function<void(float*, float*, float*, long, long, long, long, int, int)> func;
+
+        // static initialiser
+        static void initaliseThreads();
+        static void killThreads();
+        static void setDims(long, long, long, long);
+        static void setData(float*, float*, float*);
+        static void setFunc(std::function<void(float*, float*, float*, long, long, long, long, int, int)>);
+        static void doJob();
+    } threadManager;
     // static thread manager
-    static int workers;
-    static std::vector<std::thread> threads;
-    static bool* activates;
-    static bool alive;
-    static long n;
-    static long m;
-    static long k;
-    static long block;
-    static float* o;
-    static float* a;
-    static float* b;
-    static std::function<void(float*, float*, float*, long, long, long, long, int, int)> func;
 
     // local data
     std::vector<int> dims;
@@ -49,14 +60,14 @@ class tensor{
     float* getContents() const;
 
     // functions
-    tensor operator+(const tensor& t);
-    tensor operator*(const tensor& t);
-    tensor operator^(const tensor& t);
-    float& operator[](const int& i_);
-    const float& operator[](const int& i_) const;
-    bool operator==(const tensor& t);
+    tensor operator+(const tensor&);
+    tensor operator*(const tensor&);
+    tensor operator^(const tensor&);
+    float& operator[](const int&);
+    const float& operator[](const int&) const;
+    bool operator==(const tensor&);
 };
 
-std::ostream& operator<<(std::ostream& os, const tensor& m);
+std::ostream& operator<<(std::ostream&, const tensor&);
 
 #endif

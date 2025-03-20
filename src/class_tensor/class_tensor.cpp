@@ -53,19 +53,74 @@ void handler(bool* alive, int id, int workers, bool* activate, long* n, long* m,
     return;
 }
 
+// thread Manager
 // static defs
-int tensor::workers = 4;
-std::vector<std::thread> tensor::threads(0);
-bool* tensor::activates = nullptr;
-bool tensor::alive = false;
-long tensor::n = 1;
-long tensor::m = 1;
-long tensor::k = 1;
-long tensor::block = 1;
-float* tensor::o = nullptr;
-float* tensor::a = nullptr;
-float* tensor::b = nullptr;
-std::function<void(float*, float*, float*, long, long, long, long, int, int)> tensor::func = add_shadie;
+int tensor::threadManager::workers = 4;
+std::vector<std::thread> tensor::threadManager::threads(0);
+bool* tensor::threadManager::activates = nullptr;
+bool tensor::threadManager::alive = false;
+long tensor::threadManager::n = 1;
+long tensor::threadManager::m = 1;
+long tensor::threadManager::k = 1;
+long tensor::threadManager::block = 1;
+float* tensor::threadManager::o = nullptr;
+float* tensor::threadManager::a = nullptr;
+float* tensor::threadManager::b = nullptr;
+std::function<void(float*, float*, float*, long, long, long, long, int, int)> tensor::threadManager::func = add_shadie;
+
+// static initialiser
+void tensor::threadManager::initaliseThreads(){
+    alive = true;
+    
+    activates = (bool*)malloc(sizeof(bool) * workers);
+    for(int i = 0; i < workers; i++)
+        activates[i] = false;
+    
+    for(int i = 0; i < workers; i++){
+        threads.push_back(std::thread(handler, &alive, i, workers, &(activates[i]), &n, &m, &k, &block, &o, &a, &b, &func));
+    }
+}
+void tensor::threadManager::killThreads(){
+    alive = false;
+
+    for(int i = 0; i < workers; i++){
+        threads[i].join();
+    }
+    threads.resize(0);
+
+    free(activates);
+}
+void tensor::threadManager::setDims(long n_, long m_, long k_, long block_){
+    n = n_;
+    m = m_;
+    k = k_;
+    block = block_;
+}
+void tensor::threadManager::setData(float* output_, float* a_, float* b_){
+    o = output_;
+    a = a_;
+    b = b_;
+}
+void tensor::threadManager::setFunc(std::function<void(float*, float*, float*, long, long, long, long, int, int)> func_){
+    func = func_;
+}
+void tensor::threadManager::doJob(){
+    for(long i = 0; i < workers; i++)
+        activates[i] = true;
+
+    // loop till done
+    bool all = false;
+    while(!all){
+        all = true;
+        for(int i = 0; i < workers; i++)
+            if(activates[i]) 
+                all = false;
+    }
+}
+
+
+
+
 
 tensor::tensor(std::vector<int> dims_){
     dims = dims_;
@@ -93,28 +148,8 @@ tensor::~tensor(){
     free(contents);
 }
 
-// static initialiser
-void tensor::initaliseThreads(){
-    alive = true;
-    
-    activates = (bool*)malloc(sizeof(bool) * workers);
-    for(int i = 0; i < workers; i++)
-        activates[i] = false;
-    
-    for(int i = 0; i < workers; i++){
-        threads.push_back(std::thread(handler, &alive, i, workers, &(activates[i]), &n, &m, &k, &block, &o, &a, &b, &func));
-    }
-}
-void tensor::killThreads(){
-    alive = false;
-
-    for(int i = 0; i < workers; i++){
-        threads[i].join();
-    }
-    threads.resize(0);
-
-    free(activates);
-}
+void tensor::initaliseThreads(){threadManager::initaliseThreads();}
+void tensor::killThreads(){threadManager::killThreads();}
 
 // handlers
 std::vector<int> tensor::getDims() const{return dims;};
@@ -129,28 +164,16 @@ tensor tensor::operator+(const tensor& t){
     tensor output(dims);
 
     // data
-    o = output.getContents();
-    a = contents;
-    b = t.getContents();
+    threadManager::setData(output.getContents(), contents, t.getContents());
 
     // dims
-    n = N;
+    threadManager::setDims(N, 1, 1, 1);
     
     // func
-    func = &add_shadie;
+    threadManager::setFunc(&add_shadie);
 
     //activate threads
-    for(long i = 0; i < workers; i++)
-        activates[i] = true;
-
-    // loop till done
-    bool all = false;
-    while(!all){
-        all = true;
-        for(int i = 0; i < workers; i++)
-            if(activates[i]) 
-                all = false;
-    }
+    threadManager::doJob();
     
     // return
     return output;
@@ -162,28 +185,16 @@ tensor tensor::operator*(const tensor& t){
     tensor output(dims);
 
     // data
-    o = output.getContents();
-    a = contents;
-    b = t.getContents();
+    threadManager::setData(output.getContents(), contents, t.getContents());
 
     // dims
-    n = N;
+    threadManager::setDims(N, 1, 1, 1);
     
     // func
-    func = &s_mult_shadie;
+    threadManager::setFunc(&s_mult_shadie);
 
     //activate threads
-    for(long i = 0; i < workers; i++)
-        activates[i] = true;
-
-    // loop till done
-    bool all = false;
-    while(!all){
-        all = true;
-        for(int i = 0; i < workers; i++)
-            if(activates[i]) 
-                all = false;
-    }
+    threadManager::doJob();
     
     // return
     return output;
@@ -208,7 +219,7 @@ tensor tensor::operator^(const tensor& t){
 
     
     int x = dims.size();
-    block = 1;
+    long block = 1;
     for(int i = 0; i < x-2; i++){
         if(dims[i] != t.getDims()[i])
             throw std::runtime_error("multiplicaiton of wrong value dimensions");
@@ -219,9 +230,8 @@ tensor tensor::operator^(const tensor& t){
         throw std::runtime_error("multiplicaiton mismatched K dim");
     
     // dims
-    n = dims[x-2];
-    m = t.getDims()[x-1];
-    k = dims[x-1];
+    int m = t.getDims()[x-1];
+    threadManager::setDims(dims[x-2], m, dims[x-1], block);
 
     // make output
     std::vector<int> oDims = dims;
@@ -229,28 +239,16 @@ tensor tensor::operator^(const tensor& t){
     tensor output(oDims);
 
     // data
-    o = output.getContents();
-    a = contents;
-    b = t.getContents();
+    threadManager::setData(output.getContents(), contents, t.getContents());
     
     // func
     if(m > 1)
-        func = &mult_M_skip_shadie;
+        threadManager::setFunc(&mult_M_skip_shadie);
     else 
-        func = &mult_N_skip_shadie;
+        threadManager::setFunc(&mult_N_skip_shadie);
 
     //activate threads
-    for(long i = 0; i < workers; i++)
-        activates[i] = true;
-
-    // loop till done
-    bool all = false;
-    while(!all){
-        all = true;
-        for(int i = 0; i < workers; i++)
-            if(activates[i]) 
-                all = false;
-    }
+    threadManager::doJob();
     
     // return
     return output;
