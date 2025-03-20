@@ -2,6 +2,8 @@
 
 #include "../../src/class_tensor/class_tensor.h"
 
+// #define TENSORBENCHMARK
+
 namespace my {
 namespace project {
 namespace {
@@ -40,22 +42,22 @@ class TensorTest : public testing::Test {
 };
 
 // Tests that the Foo::Bar() method does Abc.
-TEST_F(TensorTest, MakeTensorSize1DTest) {
+TEST_F(TensorTest, MakeTensorSize1D) {
     std::vector<int> dims = {10};
     tensor myTensor(dims);
     EXPECT_EQ(myTensor.getN(), 10);
 }
-TEST_F(TensorTest, MakeTensorSize2DTest) {
+TEST_F(TensorTest, MakeTensorSize2D) {
     std::vector<int> dims = {3,4};
     tensor myTensor(dims);
     EXPECT_EQ(myTensor.getN(), 12);
 }
-TEST_F(TensorTest, MakeTensorSize3DTest) {
+TEST_F(TensorTest, MakeTensorSize3D) {
     std::vector<int> dims = {3,4,5};
     tensor myTensor(dims);
     EXPECT_EQ(myTensor.getN(), 60);
 }
-TEST_F(TensorTest, ThreadErrorTests) {
+TEST_F(TensorTest, ThreadError) {
     EXPECT_THROW(tensor::threads_initaliseThreads(), std::runtime_error);
     tensor::threads_killThreads();
     EXPECT_THROW(tensor::threads_killThreads(), std::runtime_error);
@@ -64,7 +66,7 @@ TEST_F(TensorTest, ThreadErrorTests) {
     EXPECT_EQ(tensor::threads_getActiveWorkers(), 8);
     EXPECT_THROW(tensor::threads_setWorkers(4), std::runtime_error);
 }
-TEST_F(TensorTest, TensorAddTest) {
+TEST_F(TensorTest, TensorAdd) {
     std::vector<int> dims = {3,4,5};
     tensor myTensor1(dims);
     tensor myTensor2(dims);
@@ -75,9 +77,9 @@ TEST_F(TensorTest, TensorAddTest) {
         myTensor3.getContents()[i] = i*3;
     }
     tensor myTensor4 = myTensor1 + myTensor2;
-    EXPECT_EQ(myTensor4 == myTensor3, true);
+    EXPECT_TRUE(myTensor4 == myTensor3);
 }
-TEST_F(TensorTest, TensorSMultTest) {
+TEST_F(TensorTest, TensorSMult) {
     std::vector<int> dims = {3,4,5};
     tensor myTensor1(dims);
     tensor myTensor2(dims);
@@ -88,9 +90,9 @@ TEST_F(TensorTest, TensorSMultTest) {
         myTensor3.getContents()[i] = i*i*2;
     }
     tensor myTensor4 = myTensor1 * myTensor2;
-    EXPECT_EQ(myTensor4 == myTensor3, true);
+    EXPECT_TRUE(myTensor4 == myTensor3);
 }
-TEST_F(TensorTest, TensorMultTest) {
+TEST_F(TensorTest, TensorMult) {
     int n = 2;
     int m = 3;
     int k = 4;
@@ -108,9 +110,9 @@ TEST_F(TensorTest, TensorMultTest) {
     for(int i = 0; i < 6; i++)
         myTensor3.getContents()[i] = data[i];
     tensor myTensor4 = myTensor1 ^ myTensor2;
-    EXPECT_EQ(myTensor4 == myTensor3, true);
+    EXPECT_TRUE(myTensor4 == myTensor3);
 }
-TEST_F(TensorTest, Tensor3DMultTest) {
+TEST_F(TensorTest, Tensor3DMult) {
     int n = 2;
     int m = 3;
     int k = 4;
@@ -129,9 +131,9 @@ TEST_F(TensorTest, Tensor3DMultTest) {
     for(int i = 0; i < 12; i++)
         myTensor3.getContents()[i] = data[i];
     tensor myTensor4 = myTensor1 ^ myTensor2;
-    EXPECT_EQ(myTensor4 == myTensor3, true);
+    EXPECT_TRUE(myTensor4 == myTensor3);
 }
-TEST_F(TensorTest, TensorMultTestN) {
+TEST_F(TensorTest, TensorMultN) {
     int n = 3;
     int m = 1;
     int k = 4;
@@ -149,9 +151,9 @@ TEST_F(TensorTest, TensorMultTestN) {
     for(int i = 0; i < 3; i++)
         myTensor3.getContents()[i] = data[i];
     tensor myTensor4 = myTensor1 ^ myTensor2;
-    EXPECT_EQ(myTensor4 == myTensor3, true);
+    EXPECT_TRUE(myTensor4 == myTensor3);
 }
-TEST_F(TensorTest, Tensor3DMultTestN) {
+TEST_F(TensorTest, Tensor3DMultN) {
     int n = 3;
     int m = 1;
     int k = 4;
@@ -170,9 +172,9 @@ TEST_F(TensorTest, Tensor3DMultTestN) {
     for(int i = 0; i < 6; i++)
         myTensor3.getContents()[i] = data[i];
     tensor myTensor4 = myTensor1 ^ myTensor2;
-    EXPECT_EQ(myTensor4 == myTensor3, true);
+    EXPECT_TRUE(myTensor4 == myTensor3);
 }
-TEST_F(TensorTest, TensorMultErrors){
+TEST_F(TensorTest, TensorMultErrors) {
     int n = 3;
     int m = 1;
     int k = 4;
@@ -210,6 +212,63 @@ TEST_F(TensorTest, TensorMultErrors){
     tensor::threads_initaliseThreads();
     myTensor7^myTensor2;
 }
+TEST_F(TensorTest, TensorKAdd) {
+    float k = 2;
+    std::vector<int> dims = {3,4,5};
+    tensor myTensor1(dims);
+    tensor myTensor2(dims);
+    for(int i = 0; i < 60; i++){
+        myTensor1.getContents()[i] = i;
+        myTensor2.getContents()[i] = i + k;
+    }
+    tensor myTensor3 = myTensor1 + k;
+    EXPECT_TRUE(myTensor2 == myTensor3);
+}
+TEST_F(TensorTest, TensorKMult) {
+    float k = 2;
+    std::vector<int> dims = {3,4,5};
+    tensor myTensor1(dims);
+    tensor myTensor2(dims);
+    for(int i = 0; i < 60; i++){
+        myTensor1.getContents()[i] = i;
+        myTensor2.getContents()[i] = i * k;
+    }
+    tensor myTensor3 = myTensor1 * k;
+    EXPECT_TRUE(myTensor2 == myTensor3);
+}
+
+#ifdef TENSORBENCHMARK
+void benchmarkHelper(){
+    int n = 1;
+    int m = 25;
+    int k = 784;
+    std::vector<int> dims1({n, k});
+    std::vector<int> dims2({k, m});
+    std::vector<int> dims3({n, m});
+    tensor myTensor1(dims1);
+    tensor myTensor2(dims2);
+    long long total = 0;
+    int tests = 500;
+    for(int i = 0; i < tests; i++){
+        auto start = std::chrono::high_resolution_clock::now();
+        tensor myTensor4 = myTensor1 ^ myTensor2;
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+        total += duration.count();
+    }
+    std::cout << tensor::threads_getActiveWorkers() << " threads took: " << total/tests << " nanoseconds on avg over " << tests << " loops" << std::endl;
+}
+TEST_F(TensorTest, TensorThreadBenchmark){
+    std::vector<int> tests = {1,2,4,8,16};
+    for(int i : tests){
+        tensor::threads_killThreads();
+        tensor::threads_setWorkers(i);
+        tensor::threads_initaliseThreads();
+        benchmarkHelper();
+    }
+}
+#endif
+
 
 }
 }

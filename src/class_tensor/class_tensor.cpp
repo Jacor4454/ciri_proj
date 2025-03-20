@@ -13,6 +13,18 @@ void s_mult_shadie(float* output, float* a, float* b, long n, long m, long k, lo
         output[i] = a[i] * b[i];
 }
 
+void add_K_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
+    // checks are performed off thread
+    for(int i = offset; i < n; i+=step)
+        output[i] = a[i] + (*b);
+}
+
+void s_mult_K_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
+    // checks are performed off thread
+    for(int i = offset; i < n; i+=step)
+        output[i] = a[i] * (*b);
+}
+
 void mult_M_skip_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
     // checks are performed off thread
     for(int blk = 0; blk < block; blk++){
@@ -216,6 +228,45 @@ tensor tensor::operator*(const tensor& t){
     
     // func
     threadManager::setFunc(&s_mult_shadie);
+
+    //activate threads
+    threadManager::doJob();
+    
+    // return
+    return output;
+}
+// functions
+tensor tensor::operator+(const float& f){
+    tensor output(dims);
+
+    // data
+    float fcp = f;
+    threadManager::setData(output.getContents(), contents, &fcp);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+    
+    // func
+    threadManager::setFunc(&add_K_shadie);
+
+    //activate threads
+    threadManager::doJob();
+    
+    // return
+    return output;
+}
+tensor tensor::operator*(const float& f){
+    tensor output(dims);
+
+    // data
+    float fcp = f;
+    threadManager::setData(output.getContents(), contents, &fcp);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+    
+    // func
+    threadManager::setFunc(&s_mult_K_shadie);
 
     //activate threads
     threadManager::doJob();
