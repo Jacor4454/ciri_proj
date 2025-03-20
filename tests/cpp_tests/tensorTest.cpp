@@ -14,6 +14,7 @@ class TensorTest : public testing::Test {
 
     TensorTest() {
         // You can do set-up work for each test here.
+        tensor::threads_setWorkers(4);
         tensor::threads_initaliseThreads();
     }
 
@@ -182,24 +183,32 @@ TEST_F(TensorTest, TensorMultErrors){
     std::vector<int> dims2({Ex, k, m});
     tensor myTensor1(dims1);
     tensor myTensor2(dims2);
-    EXPECT_THROW(myTensor1+myTensor2, std::runtime_error);
+    EXPECT_THROW(myTensor1^myTensor2, std::runtime_error);
     
     // mismatched dim length
     std::vector<int> dims3({n, k});
     tensor myTensor3(dims3);
-    EXPECT_THROW(myTensor3+myTensor2, std::runtime_error);
+    EXPECT_THROW(myTensor3^myTensor2, std::runtime_error);
     
     // length < 2
     std::vector<int> dims4({n});
     std::vector<int> dims5({m});
     tensor myTensor4(dims4);
     tensor myTensor5(dims5);
-    EXPECT_THROW(myTensor4+myTensor5, std::runtime_error);
+    EXPECT_THROW(myTensor4^myTensor5, std::runtime_error);
 
     // incorect precede dim
     std::vector<int> dims6({Ex+1, n, k});
     tensor myTensor6(dims6);
-    EXPECT_THROW(myTensor6+myTensor2, std::runtime_error);
+    EXPECT_THROW(myTensor6^myTensor2, std::runtime_error);
+    
+    // stopped threads
+    std::vector<int> dims7({Ex, n, k});
+    tensor myTensor7(dims7);
+    tensor::threads_killThreads();
+    EXPECT_THROW(myTensor7^myTensor2, std::runtime_error);
+    tensor::threads_initaliseThreads();
+    myTensor7^myTensor2;
 }
 
 }

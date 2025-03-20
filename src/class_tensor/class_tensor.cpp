@@ -114,6 +114,12 @@ void tensor::threadManager::setFunc(std::function<void(float*, float*, float*, l
     func = func_;
 }
 void tensor::threadManager::doJob(){
+    if(!created)
+        throw std::runtime_error("workers not started");
+    
+    if(!alive)
+        throw std::runtime_error("workers dead?!?! this error should be impossible BTW :)");
+
     for(long i = 0; i < workers; i++)
         activates[i] = true;
 
