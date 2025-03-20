@@ -1,10 +1,46 @@
 #include "class_tensor.h"
 
 // shadies and funcs
-void add_shadie(float* output, float* a, float* b, long n, long m, long red0, long block, int offset, int step){
+void add_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
     // checks are performed off thread
     for(int i = offset; i < n; i+=step)
         output[i] = a[i] + b[i];
+}
+
+void s_mult_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
+    // checks are performed off thread
+    for(int i = offset; i < n; i+=step)
+        output[i] = a[i] * b[i];
+}
+
+void mult_M_skip_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
+    // checks are performed off thread
+    for(int blk = 0; blk < block; blk++){
+        for(int i = 0; i < n; i++){
+            for(int j = offset; j < m; j+=step){
+                int tot = 0;
+                for(int k_ = 0; k_ < k; k_++){
+                    tot += a[((blk*n + i)*k) + k_] * b[((blk*k + k_)*m) + j];
+                }
+                output[((blk*n + i)*m) + j] = tot;
+            }
+        }
+    }
+}
+
+void mult_N_skip_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
+    // checks are performed off thread
+    for(int blk = 0; blk < block; blk++){
+        for(int i = offset; i < n; i+=step){
+            for(int j = 0; j < m; j++){
+                int tot = 0;
+                for(int k_ = 0; k_ < k; k_++){
+                    tot += a[((blk*n + i)*k) + k_] * b[((blk*k + k_)*m) + j];
+                }
+                output[((blk*n + i)*m) + j] = tot;
+            }
+        }
+    }
 }
 
 void handler(bool* alive, int id, int workers, bool* activate, long* n, long* m, long* k, long* block, float** output, float** a, float** b, std::function<void(float*, float*, float*, long, long, long, long, int, int)> *f){
@@ -121,13 +157,102 @@ tensor tensor::operator+(const tensor& t){
 }
 tensor tensor::operator*(const tensor& t){
     if(dims != t.getDims())
-        throw std::runtime_error("addition of mismatched dimensions");
+        throw std::runtime_error("straight multiplication of mismatched dimensions");
 
     tensor output(dims);
 
-    for(long i = 0; i < N; i++)
-        output[i] = contents[i] * t[i];
+    // data
+    o = output.getContents();
+    a = contents;
+    b = t.getContents();
+
+    // dims
+    n = N;
     
+    // func
+    func = &s_mult_shadie;
+
+    //activate threads
+    for(long i = 0; i < workers; i++)
+        activates[i] = true;
+
+    // loop till done
+    bool all = false;
+    while(!all){
+        all = true;
+        for(int i = 0; i < workers; i++)
+            if(activates[i]) 
+                all = false;
+    }
+    
+    // return
+    return output;
+}
+tensor tensor::operator^(const tensor& t){
+    // this is LHS 
+    // t is RHS
+    // n is this(Y)
+    // k is this(X) & t(Y)
+    // m is t(X)
+
+    // if x is dims.size()
+    // the first x-2 dims must equal
+    // then dims[x-2] => y
+    // then dims[x-1] => x
+
+    if(dims.size() != t.getDims().size())
+        throw std::runtime_error("multiplicaiton of wrong length dimensions");
+
+    if(dims.size() < 2)
+        throw std::runtime_error("multiplicaiton must have 2 or more dimensions");
+
+    
+    int x = dims.size();
+    block = 1;
+    for(int i = 0; i < x-2; i++){
+        if(dims[i] != t.getDims()[i])
+            throw std::runtime_error("multiplicaiton of wrong value dimensions");
+        block *= dims[i];
+    }
+
+    if(dims[x-1] != t.getDims()[x-2])
+        throw std::runtime_error("multiplicaiton mismatched K dim");
+    
+    // dims
+    n = dims[x-2];
+    m = t.getDims()[x-1];
+    k = dims[x-1];
+
+    // make output
+    std::vector<int> oDims = dims;
+    oDims[x-1] = m;
+    tensor output(oDims);
+
+    // data
+    o = output.getContents();
+    a = contents;
+    b = t.getContents();
+    
+    // func
+    if(m > 1)
+        func = &mult_M_skip_shadie;
+    else 
+        func = &mult_N_skip_shadie;
+
+    //activate threads
+    for(long i = 0; i < workers; i++)
+        activates[i] = true;
+
+    // loop till done
+    bool all = false;
+    while(!all){
+        all = true;
+        for(int i = 0; i < workers; i++)
+            if(activates[i]) 
+                all = false;
+    }
+    
+    // return
     return output;
 }
 float& tensor::operator[](const int& i_){return contents[i_];};

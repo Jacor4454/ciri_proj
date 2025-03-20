@@ -51,6 +51,7 @@ class tensor{
     // functions
     tensor operator+(const tensor& t);
     tensor operator*(const tensor& t);
+    tensor operator^(const tensor& t);
     float& operator[](const int& i_);
     const float& operator[](const int& i_) const;
     bool operator==(const tensor& t);
