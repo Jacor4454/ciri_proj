@@ -193,11 +193,11 @@ long tensor::getN() const{return N;}
 float* tensor::getContents() const{return contents;}
 
 // functions
-tensor tensor::operator+(const tensor& t){
+void tensor::add(tensor& output, const tensor& t){
     if(dims != t.getDims())
         throw std::runtime_error("addition of mismatched dimensions");
-
-    tensor output(dims);
+    if(dims != output.getDims())
+        throw std::runtime_error("addition output wrong dimensions");
 
     // data
     threadManager::setData(output.getContents(), contents, t.getContents());
@@ -210,34 +210,10 @@ tensor tensor::operator+(const tensor& t){
 
     //activate threads
     threadManager::doJob();
-    
-    // return
-    return output;
 }
-tensor tensor::operator*(const tensor& t){
-    if(dims != t.getDims())
-        throw std::runtime_error("straight multiplication of mismatched dimensions");
-
-    tensor output(dims);
-
-    // data
-    threadManager::setData(output.getContents(), contents, t.getContents());
-
-    // dims
-    threadManager::setDims(N, 1, 1, 1);
-    
-    // func
-    threadManager::setFunc(&s_mult_shadie);
-
-    //activate threads
-    threadManager::doJob();
-    
-    // return
-    return output;
-}
-// functions
-tensor tensor::operator+(const float& f){
-    tensor output(dims);
+void tensor::add(tensor& output, const float& f){
+    if(dims != output.getDims())
+        throw std::runtime_error("addition output wrong dimensions");
 
     // data
     float fcp = f;
@@ -251,12 +227,28 @@ tensor tensor::operator+(const float& f){
 
     //activate threads
     threadManager::doJob();
-    
-    // return
-    return output;
 }
-tensor tensor::operator*(const float& f){
-    tensor output(dims);
+void tensor::sMult(tensor& output, const tensor& t){
+    if(dims != t.getDims())
+        throw std::runtime_error("straight multiplication of mismatched dimensions");
+    if(dims != output.getDims())
+        throw std::runtime_error("straight multiplication output wrong dimensions");
+
+    // data
+    threadManager::setData(output.getContents(), contents, t.getContents());
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+    
+    // func
+    threadManager::setFunc(&s_mult_shadie);
+
+    //activate threads
+    threadManager::doJob();
+}
+void tensor::sMult(tensor& output, const float& f){
+    if(dims != output.getDims())
+        throw std::runtime_error("straight multiplication output wrong dimensions");
 
     // data
     float fcp = f;
@@ -270,11 +262,8 @@ tensor tensor::operator*(const float& f){
 
     //activate threads
     threadManager::doJob();
-    
-    // return
-    return output;
 }
-tensor tensor::operator^(const tensor& t){
+void tensor::mult(tensor& output, const tensor& t){
     // this is LHS 
     // t is RHS
     // n is this(Y)
@@ -298,20 +287,21 @@ tensor tensor::operator^(const tensor& t){
     for(int i = 0; i < x-2; i++){
         if(dims[i] != t.getDims()[i])
             throw std::runtime_error("multiplicaiton of wrong value dimensions");
+        if(dims[i] != output.getDims()[i])
+            throw std::runtime_error("multiplicaiton output of wrong value dimensions");
         block *= dims[i];
     }
 
     if(dims[x-1] != t.getDims()[x-2])
         throw std::runtime_error("multiplicaiton mismatched K dim");
+    if(output.getDims()[x-1] != t.getDims()[x-1])
+        throw std::runtime_error("multiplicaiton mismatched m dim");
+    if(output.getDims()[x-2] != dims[x-2])
+        throw std::runtime_error("multiplicaiton mismatched n dim");
     
     // dims
     int m = t.getDims()[x-1];
     threadManager::setDims(dims[x-2], m, dims[x-1], block);
-
-    // make output
-    std::vector<int> oDims = dims;
-    oDims[x-1] = m;
-    tensor output(oDims);
 
     // data
     threadManager::setData(output.getContents(), contents, t.getContents());
@@ -324,6 +314,51 @@ tensor tensor::operator^(const tensor& t){
 
     //activate threads
     threadManager::doJob();
+}
+
+// operators
+tensor tensor::operator+(const tensor& t){
+    tensor output(dims);
+
+    add(output, t);
+    
+    // return
+    return output;
+}
+tensor tensor::operator+(const float& f){
+    tensor output(dims);
+
+    add(output, f);
+    
+    // return
+    return output;
+}
+tensor tensor::operator*(const tensor& t){
+    tensor output(dims);
+
+    sMult(output, t);
+    
+    // return
+    return output;
+}
+tensor tensor::operator*(const float& f){
+    tensor output(dims);
+
+    sMult(output, f);
+    
+    // return
+    return output;
+}
+tensor tensor::operator^(const tensor& t){
+    int x = dims.size();
+    int m = t.getDims()[x-1];
+
+    // make output
+    std::vector<int> oDims = dims;
+    oDims[x-1] = m;
+    tensor output(oDims);
+
+    mult(output, t);
     
     // return
     return output;

@@ -67,9 +67,16 @@ class tensor{
     float* getContents() const;
 
     // functions
+    void add(tensor&, const tensor&);
+    void add(tensor&, const float&);
+    void sMult(tensor&, const tensor&);
+    void sMult(tensor&, const float&);
+    void mult(tensor&, const tensor&);
+
+    //operators
     tensor operator+(const tensor&);
-    tensor operator*(const tensor&);
     tensor operator+(const float&);
+    tensor operator*(const tensor&);
     tensor operator*(const float&);
     tensor operator^(const tensor&);
     float& operator[](const int&);

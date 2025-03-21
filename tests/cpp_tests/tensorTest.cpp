@@ -211,6 +211,93 @@ TEST_F(TensorTest, TensorMultErrors) {
     EXPECT_THROW(myTensor7^myTensor2, std::runtime_error);
     tensor::threads_initaliseThreads();
     myTensor7^myTensor2;
+
+    
+    // output wrong size
+    std::vector<int> dims8({Ex, n+1, m});
+    tensor myTensor8(dims8);
+    EXPECT_THROW(myTensor7.mult(myTensor8, myTensor2), std::runtime_error);
+    std::vector<int> dims9({Ex+1, n, m});
+    tensor myTensor9(dims9);
+    EXPECT_THROW(myTensor7.mult(myTensor9, myTensor2), std::runtime_error);
+    std::vector<int> dims10({Ex, n, m});
+    tensor myTensor10(dims10);
+    myTensor7.mult(myTensor10, myTensor2);
+
+}
+TEST_F(TensorTest, TensorAddErrors) {
+    int n = 3;
+    int m = 1;
+    int k = 4;
+    int Ex = 2;
+
+    // k dim different
+    std::vector<int> dims1({Ex, k, n, m});
+    std::vector<int> dims2({Ex, k, n, m+1});
+    tensor myTensor1(dims1);
+    tensor myTensor2(dims2);
+    EXPECT_THROW(myTensor1+myTensor2, std::runtime_error);
+    
+    std::vector<int> dims3({Ex, k+1, n, m});
+    tensor myTensor3(dims3);
+    EXPECT_THROW(myTensor1+myTensor3, std::runtime_error);
+    
+    std::vector<int> dims4({Ex, k, n, m});
+    tensor myTensor4(dims4);
+    myTensor1+myTensor4;
+
+    std::vector<int> dims5({Ex, k, n, m+1});
+    tensor myTensor5(dims5);
+    EXPECT_THROW(myTensor1.add(myTensor5, myTensor4), std::runtime_error);
+    
+    std::vector<int> dims6({Ex+1, k, n, m});
+    tensor myTensor6(dims6);
+    EXPECT_THROW(myTensor1.add(myTensor6, myTensor4), std::runtime_error);
+
+    EXPECT_THROW(myTensor1.add(myTensor6, 12), std::runtime_error);    
+
+    
+    std::vector<int> dims7({Ex, k, n, m});
+    tensor myTensor7(dims7);
+    myTensor1.add(myTensor7, 12);
+    myTensor1.add(myTensor7, myTensor4);
+}
+TEST_F(TensorTest, TensorSMultErrors) {
+    int n = 3;
+    int m = 1;
+    int k = 4;
+    int Ex = 2;
+
+    // k dim different
+    std::vector<int> dims1({Ex, k, n, m});
+    std::vector<int> dims2({Ex, k, n, m+1});
+    tensor myTensor1(dims1);
+    tensor myTensor2(dims2);
+    EXPECT_THROW(myTensor1*myTensor2, std::runtime_error);
+    
+    std::vector<int> dims3({Ex, k+1, n, m});
+    tensor myTensor3(dims3);
+    EXPECT_THROW(myTensor1*myTensor3, std::runtime_error);
+    
+    std::vector<int> dims4({Ex, k, n, m});
+    tensor myTensor4(dims4);
+    myTensor1*myTensor4;
+
+    std::vector<int> dims5({Ex, k, n, m+1});
+    tensor myTensor5(dims5);
+    EXPECT_THROW(myTensor1.sMult(myTensor5, myTensor4), std::runtime_error);
+    
+    std::vector<int> dims6({Ex+1, k, n, m});
+    tensor myTensor6(dims6);
+    EXPECT_THROW(myTensor1.sMult(myTensor6, myTensor4), std::runtime_error);
+
+    EXPECT_THROW(myTensor1.sMult(myTensor6, 12), std::runtime_error);    
+
+    
+    std::vector<int> dims7({Ex, k, n, m});
+    tensor myTensor7(dims7);
+    myTensor1.sMult(myTensor7, 12);
+    myTensor1.sMult(myTensor7, myTensor4);
 }
 TEST_F(TensorTest, TensorKAdd) {
     float k = 2;
@@ -240,7 +327,7 @@ TEST_F(TensorTest, TensorKMult) {
 #ifdef TENSORBENCHMARK
 void benchmarkHelper(){
     int n = 1;
-    int m = 25;
+    int m = 150;
     int k = 784;
     std::vector<int> dims1({n, k});
     std::vector<int> dims2({k, m});
@@ -266,6 +353,39 @@ TEST_F(TensorTest, TensorThreadBenchmark){
         tensor::threads_initaliseThreads();
         benchmarkHelper();
     }
+}
+TEST_F(TensorTest, TensorAssignmentBenchmark){
+    std::cout << "Using: " << tensor::threads_getActiveWorkers() << " threads" << std::endl;
+    int n = 1;
+    int m = 150;
+    int k = 784;
+    std::vector<int> dims1({n, k});
+    std::vector<int> dims2({k, m});
+    std::vector<int> dims3({n, m});
+    tensor myTensor1(dims1);
+    tensor myTensor2(dims2);
+    tensor myTensor3(dims3);
+
+    long long total = 0;
+    int tests = 500;
+    for(int i = 0; i < tests; i++){
+        auto start = std::chrono::high_resolution_clock::now();
+        tensor myTensor4 = myTensor1 ^ myTensor2;
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+        total += duration.count();
+    }
+    std::cout << "operator took: " << total/tests << " nanoseconds on avg over " << tests << " loops" << std::endl;
+    
+    total = 0;
+    for(int i = 0; i < tests; i++){
+        auto start = std::chrono::high_resolution_clock::now();
+        myTensor1.mult(myTensor3, myTensor2);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+        total += duration.count();
+    }
+    std::cout << "prealloc took: " << total/tests << " nanoseconds on avg over " << tests << " loops" << std::endl;
 }
 #endif
 
