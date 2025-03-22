@@ -81,7 +81,7 @@ float* tensor::threadManager::b = nullptr;
 std::function<void(float*, float*, float*, long, long, long, long, int, int)> tensor::threadManager::func = add_shadie;
 bool tensor::threadManager::created = false;
 
-// static initialiser
+// static thread functions
 void tensor::threadManager::initaliseThreads(){
     if(created)
         throw std::runtime_error("cannot create threads as they have already been made");
@@ -169,14 +169,12 @@ tensor::tensor(std::vector<int> dims_){
     //     std::cout << n << ", ";
     // std::cout << "]" << std::endl;
 }
-
 tensor::tensor(const tensor& t){
     dims = t.getDims();
     N = t.getN();
     contents = (float*)malloc(N * sizeof(float));
     std::memcpy(contents, t.getContents(), N * sizeof(float));
 }
-
 tensor::~tensor(){
     free(contents);
 }
@@ -193,7 +191,7 @@ long tensor::getN() const{return N;}
 float* tensor::getContents() const{return contents;}
 
 // functions
-void tensor::add(tensor& output, const tensor& t){
+void tensor::add(tensor& output, const tensor& t) const{
     if(dims != t.getDims())
         throw std::runtime_error("addition of mismatched dimensions");
     if(dims != output.getDims())
@@ -211,7 +209,7 @@ void tensor::add(tensor& output, const tensor& t){
     //activate threads
     threadManager::doJob();
 }
-void tensor::add(tensor& output, const float& f){
+void tensor::add(tensor& output, const float& f) const{
     if(dims != output.getDims())
         throw std::runtime_error("addition output wrong dimensions");
 
@@ -228,7 +226,7 @@ void tensor::add(tensor& output, const float& f){
     //activate threads
     threadManager::doJob();
 }
-void tensor::sMult(tensor& output, const tensor& t){
+void tensor::sMult(tensor& output, const tensor& t) const{
     if(dims != t.getDims())
         throw std::runtime_error("straight multiplication of mismatched dimensions");
     if(dims != output.getDims())
@@ -246,7 +244,7 @@ void tensor::sMult(tensor& output, const tensor& t){
     //activate threads
     threadManager::doJob();
 }
-void tensor::sMult(tensor& output, const float& f){
+void tensor::sMult(tensor& output, const float& f) const{
     if(dims != output.getDims())
         throw std::runtime_error("straight multiplication output wrong dimensions");
 
@@ -263,7 +261,7 @@ void tensor::sMult(tensor& output, const float& f){
     //activate threads
     threadManager::doJob();
 }
-void tensor::mult(tensor& output, const tensor& t){
+void tensor::mult(tensor& output, const tensor& t) const{
     // this is LHS 
     // t is RHS
     // n is this(Y)
