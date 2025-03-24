@@ -8,7 +8,14 @@
 #include <iostream>
 #include <cstring>
 #include <thread>
+#include <math.h>
 
+namespace activations {
+    typedef enum{
+        ReLU,
+        Sigmoid,
+    } accTypes;
+}
 
 // main tensor definition for CPU bound compute
 class tensor{
@@ -66,12 +73,21 @@ class tensor{
     long getN() const;
     float* getContents() const;
 
+    // accs
+    void ReLU();
+    void deReLU();
+    void Sigmoid();
+    void deSigmoid();
+    void activate(activations::accTypes);
+    void deactivate(activations::accTypes);
+
     // functions
     void add(tensor&, const tensor&) const;
     void add(tensor&, const float&) const;
     void sMult(tensor&, const tensor&) const;
     void sMult(tensor&, const float&) const;
     void mult(tensor&, const tensor&) const;
+    void cpy(const tensor&);
 
     // complex multipliers
     void fastDeMultL(tensor&, const tensor&) const;

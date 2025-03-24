@@ -10,13 +10,15 @@ class perceptron : public BaseLayer{
     tensor dweights;
     tensor dbias;
     tensor dweightsTemp;
+    tensor hold;
 
     public:
     perceptron(int in, int out);
     virtual ~perceptron();
 
     void forward(tensor&, const tensor&);
-    void backward(tensor&, const tensor&, const tensor&, const tensor&);
+    void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
+    void learn(float alpha);
 
     std::string getLayerType();
 };

@@ -11,7 +11,9 @@ class BaseLayer{
     virtual ~BaseLayer();
 
     virtual void forward(tensor&, const tensor&);
-    virtual void backward(tensor&, const tensor&, const tensor&, const tensor&);
+    virtual void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
+    virtual void learn(float alpha);
+    
     std::vector<int> getDims();
 
     virtual std::string getLayerType();

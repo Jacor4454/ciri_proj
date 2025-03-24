@@ -1,24 +1,24 @@
 #include <gtest/gtest.h>
 
-#include "../../src/class_layer/perceptron/class_perceptron.h"
+#include "../../src/class_layer/recersive/class_recersive.h"
 
 namespace my {
 namespace project {
 namespace {
 
 // The fixture for testing class Foo.
-class PerceptronLayerTest : public testing::Test {
+class RecursiveLayerTest : public testing::Test {
     protected:
     // You can remove any or all of the following functions if their bodies would
     // be empty.
 
-    PerceptronLayerTest() {
+    RecursiveLayerTest() {
         // You can do set-up work for each test here.
         tensor::threads_setWorkers(4);
         tensor::threads_initaliseThreads();
     }
 
-    ~PerceptronLayerTest() override {
+    ~RecursiveLayerTest() override {
         // You can do clean-up work that doesn't throw exceptions here.
         tensor::threads_killThreads();
     }
@@ -40,38 +40,38 @@ class PerceptronLayerTest : public testing::Test {
 };
 
 // Tests that the Foo::Bar() method does Abc.
-TEST_F(PerceptronLayerTest, MakeLayer) {
-    BaseLayer* b = new perceptron(784, 150);
-    EXPECT_EQ(b->getLayerType(), "Perceptron");
+TEST_F(RecursiveLayerTest, MakeLayer) {
+    BaseLayer* b = new recursive(784, 150);
+    EXPECT_EQ(b->getLayerType(), "Recersive");
     delete b;
 }
-TEST_F(PerceptronLayerTest, forward) {
+TEST_F(RecursiveLayerTest, forward) {
     int n = 1;
     int m = 150;
     int k = 784;
-    BaseLayer* b = new perceptron(k, m);
+    BaseLayer* b = new recursive(k, m);
     tensor input({n,k});
     tensor output({n,m});
     b->forward(output, input);
     delete b;
 }
-TEST_F(PerceptronLayerTest, backwards) {
+TEST_F(RecursiveLayerTest, backwards) {
     int n = 1;
     int m = 150;
     int k = 784;
-    BaseLayer* b = new perceptron(k, m);
+    BaseLayer* b = new recursive(k, m);
     tensor dinput({n,k});
     tensor input({n,k});
     tensor doutput({n,m});
     tensor output({n,m});
-    tensor dnm({});
-    b->backward(dinput, input, doutput, dnm, output);
+    tensor previous_output({n,m});
+    b->backward(dinput, input, doutput, previous_output, output);
     delete b;
 }
-TEST_F(PerceptronLayerTest, learn) {
+TEST_F(RecursiveLayerTest, learn) {
     int m = 150;
     int k = 784;
-    BaseLayer* b = new perceptron(k, m);
+    BaseLayer* b = new recursive(k, m);
     b->learn(0.4);
     delete b;
 }

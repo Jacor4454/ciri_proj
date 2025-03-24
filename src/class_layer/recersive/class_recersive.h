@@ -9,13 +9,21 @@ class recursive : public BaseLayer{
     tensor bias;
     tensor rWeights;
     tensor prev;
+    tensor dInt;
     tensor forwardTemp;
+    tensor dbias;
+    tensor dweights;
+    tensor dweightsTemp;
+    tensor dRWeights;
+    tensor dRWeightsTemp;
 
     public:
+    recursive(int in, int out);
     virtual ~recursive();
 
     void forward(tensor&, const tensor&);
-    void backward(tensor&, const tensor&);
+    void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
+    void learn(float alpha);
 
     std::string getLayerType();
 };

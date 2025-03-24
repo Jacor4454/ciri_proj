@@ -4,6 +4,7 @@
 // all test includes
 #include "tensorTest.cpp"
 #include "perceptronLayerTest.cpp"
+#include "recursiveLayerTest.cpp"
 
 
 

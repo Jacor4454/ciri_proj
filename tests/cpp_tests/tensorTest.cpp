@@ -2,7 +2,7 @@
 
 #include "../../src/class_tensor/class_tensor.h"
 
-#define TENSORBENCHMARK
+// #define TENSORBENCHMARK
 
 namespace my {
 namespace project {
@@ -301,7 +301,7 @@ TEST_F(TensorTest, TensorDeMultL) {
     myTensor1.fastDeMultL(myTensor4, myTensor2);
     EXPECT_TRUE(myTensor4 == myTensor3);
 }
-TEST_F(TensorTest, TensorMultLN) {
+TEST_F(TensorTest, TensorDeMultLN) {
     int n = 3;
     int m = 1;
     int k = 4;
@@ -337,7 +337,7 @@ TEST_F(TensorTest, TensorDeMultR) {
     myTensor1.fastDeMultR(myTensor4, myTensor2);
     EXPECT_TRUE(myTensor4 == myTensor3);
 }
-TEST_F(TensorTest, TensorMultRN) {
+TEST_F(TensorTest, TensorDeMultRN) {
     int n = 3;
     int m = 1;
     int k = 4;
@@ -355,6 +355,83 @@ TEST_F(TensorTest, TensorMultRN) {
     myTensor1.fastDeMultR(myTensor4, myTensor2);
     EXPECT_TRUE(myTensor4 == myTensor3);
 }
+TEST_F(TensorTest, TensorDeMultL3D) {
+    int block = 2;
+    int n = 2;
+    int m = 3;
+    int k = 4;
+    tensor myTensor1({block, k, n});
+    for(int i = 0; i < 16; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({block, k, m});
+    for(int i = 0; i < 24; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({block, n, m});
+    tensor myTensor4({block, n, m});
+    std::vector<float> data = {118,134,150,140,160,180,870,918,966,940,992,1044};
+    for(int i = 0; i < 12; i++)
+        myTensor3.getContents()[i] = data[i];
+    myTensor1.fastDeMultL(myTensor4, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
+TEST_F(TensorTest, TensorDeMultLN3D) {
+    int block = 2;
+    int n = 3;
+    int m = 1;
+    int k = 4;
+    tensor myTensor1({block, k, n});
+    for(int i = 0; i < 24; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({block, k, m});
+    for(int i = 0; i < 8; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({block, n, m});
+    tensor myTensor4({block, n, m});
+    std::vector<float> data = {70,80,90,470,496,522};
+    for(int i = 0; i < 6; i++)
+        myTensor3.getContents()[i] = data[i];
+    myTensor1.fastDeMultL(myTensor4, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
+TEST_F(TensorTest, TensorDeMultR3D) {
+    int block = 2;
+    int n = 2;
+    int m = 3;
+    int k = 4;
+    tensor myTensor1({block, n, k});
+    for(int i = 0; i < 16; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({block, m, k});
+    for(int i = 0; i < 24; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({block, n, m});
+    tensor myTensor4({block, n, m});
+    std::vector<float> data = {30,70,110,70,174,278,614,782,950,846,1078,1310};
+    for(int i = 0; i < 12; i++)
+        myTensor3.getContents()[i] = data[i];
+    myTensor1.fastDeMultR(myTensor4, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
+TEST_F(TensorTest, TensorDeMultRN3D) {
+    int block = 2;
+    int n = 3;
+    int m = 1;
+    int k = 4;
+    tensor myTensor1({block, n, k});
+    for(int i = 0; i < 24; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({block, m, k});
+    for(int i = 0; i < 8; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({block, n, m});
+    tensor myTensor4({block, n, m});
+    std::vector<float> data = {30,70,110,382,486,590};
+    for(int i = 0; i < 6; i++)
+        myTensor3.getContents()[i] = data[i];
+    myTensor1.fastDeMultR(myTensor4, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
+
 
 
 #ifdef TENSORBENCHMARK
