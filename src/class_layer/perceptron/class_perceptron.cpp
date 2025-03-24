@@ -16,17 +16,12 @@ void perceptron::forward(tensor& output, const tensor& input){
 }
 
 void perceptron::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& IGNORE){
-    std::cout << "1\n";
-    input.mult(dweightsTemp, dOutput);
-    std::cout << "a\n";
+    input.fastDeMultL(dweightsTemp, dOutput);
     dweights.add(dweights, dweightsTemp);
-    std::cout << "b\n";
 
     dbias.add(dbias, dOutput);
-    std::cout << "c\n";
 
-    weights.mult(dInput, dOutput);
-    std::cout << "d\n";
+    dOutput.fastDeMultR(dInput, weights);
 }
 
 std::string perceptron::getLayerType(){return "Perceptron";}

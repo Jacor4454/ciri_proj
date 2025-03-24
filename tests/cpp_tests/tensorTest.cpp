@@ -2,7 +2,7 @@
 
 #include "../../src/class_tensor/class_tensor.h"
 
-// #define TENSORBENCHMARK
+#define TENSORBENCHMARK
 
 namespace my {
 namespace project {
@@ -283,6 +283,79 @@ TEST_F(TensorTest, TensorKMult) {
     tensor myTensor3 = myTensor1 * k;
     EXPECT_TRUE(myTensor2 == myTensor3);
 }
+TEST_F(TensorTest, TensorDeMultL) {
+    int n = 2;
+    int m = 3;
+    int k = 4;
+    tensor myTensor1({k, n});
+    for(int i = 0; i < 8; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({k, m});
+    for(int i = 0; i < 12; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({n, m});
+    tensor myTensor4({n, m});
+    std::vector<float> data = {118,134,150,140,160,180};
+    for(int i = 0; i < 6; i++)
+        myTensor3.getContents()[i] = data[i];
+    myTensor1.fastDeMultL(myTensor4, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
+TEST_F(TensorTest, TensorMultLN) {
+    int n = 3;
+    int m = 1;
+    int k = 4;
+    tensor myTensor1({k, n});
+    for(int i = 0; i < 12; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({k, m});
+    for(int i = 0; i < 4; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({n, m});
+    tensor myTensor4({n, m});
+    std::vector<float> data = {70,80,90};
+    for(int i = 0; i < 3; i++)
+        myTensor3.getContents()[i] = data[i];
+    myTensor1.fastDeMultL(myTensor4, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
+TEST_F(TensorTest, TensorDeMultR) {
+    int n = 2;
+    int m = 3;
+    int k = 4;
+    tensor myTensor1({n, k});
+    for(int i = 0; i < 8; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({m, k});
+    for(int i = 0; i < 12; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({n, m});
+    tensor myTensor4({n, m});
+    std::vector<float> data = {30,70,110,70,174,278};
+    for(int i = 0; i < 6; i++)
+        myTensor3.getContents()[i] = data[i];
+    myTensor1.fastDeMultR(myTensor4, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
+TEST_F(TensorTest, TensorMultRN) {
+    int n = 3;
+    int m = 1;
+    int k = 4;
+    tensor myTensor1({n, k});
+    for(int i = 0; i < 12; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({m, k});
+    for(int i = 0; i < 4; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({n, m});
+    tensor myTensor4({n, m});
+    std::vector<float> data = {30,70,110};
+    for(int i = 0; i < 3; i++)
+        myTensor3.getContents()[i] = data[i];
+    myTensor1.fastDeMultR(myTensor4, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
+
 
 #ifdef TENSORBENCHMARK
 void benchmarkHelper(){

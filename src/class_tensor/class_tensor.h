@@ -73,6 +73,10 @@ class tensor{
     void sMult(tensor&, const float&) const;
     void mult(tensor&, const tensor&) const;
 
+    // complex multipliers
+    void fastDeMultL(tensor&, const tensor&) const;
+    void fastDeMultR(tensor&, const tensor&) const;
+
     //operators
     tensor operator+(const tensor&);
     tensor operator+(const float&);
