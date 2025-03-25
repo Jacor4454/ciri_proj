@@ -10,12 +10,7 @@
 #include <thread>
 #include <math.h>
 
-namespace activations {
-    typedef enum{
-        ReLU,
-        Sigmoid,
-    } accTypes;
-}
+#include "./activators/activators.h"
 
 // main tensor definition for CPU bound compute
 class tensor{
@@ -60,6 +55,8 @@ class tensor{
     tensor(std::vector<int> dims_);
     tensor(const tensor& t);
     ~tensor();
+    void cpy(const tensor&);
+    void cpy(const std::vector<float>&);
 
     // static initialiser
     static void threads_initaliseThreads();
@@ -74,10 +71,6 @@ class tensor{
     float* getContents() const;
 
     // accs
-    void ReLU();
-    void deReLU();
-    void Sigmoid();
-    void deSigmoid();
     void activate(activations::accTypes);
     void deactivate(activations::accTypes);
 
@@ -87,7 +80,6 @@ class tensor{
     void sMult(tensor&, const tensor&) const;
     void sMult(tensor&, const float&) const;
     void mult(tensor&, const tensor&) const;
-    void cpy(const tensor&);
 
     // complex multipliers
     void fastDeMultL(tensor&, const tensor&) const;

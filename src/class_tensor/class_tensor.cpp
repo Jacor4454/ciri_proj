@@ -258,6 +258,21 @@ tensor::tensor(const tensor& t){
 tensor::~tensor(){
     free(contents);
 }
+void tensor::cpy(const tensor& t) {
+    dims = t.getDims();
+    N = t.getN();
+    free(contents);
+    contents = (float*)malloc(N * sizeof(float));
+    std::memcpy(contents, t.getContents(), N * sizeof(float));
+}
+void tensor::cpy(const std::vector<float>& v) {
+    if(v.size() != N)
+        throw std::runtime_error("cpy vector wrong size");
+    
+    for(int i = 0; i < N; i++)
+        contents[i] = v[i];
+}
+
 
 void tensor::threads_initaliseThreads(){threadManager::initaliseThreads();}
 void tensor::threads_killThreads(){threadManager::killThreads();}
@@ -271,50 +286,11 @@ long tensor::getN() const{return N;}
 float* tensor::getContents() const{return contents;}
 
 // accs
-void tensor::ReLU(){
-    for(int i = 0; i < N; i++){
-        contents[i] = contents[i] < 0 ? 0 : contents[i];
-    }
-}
-void tensor::deReLU(){
-    for(int i = 0; i < N; i++){
-        contents[i] = contents[i] > 0 ? 1 : 0;
-    }
-}
-void tensor::Sigmoid(){
-    for(int i = 0; i < N; i++){
-        contents[i] = contents[i] < 0 ? 0 : contents[i];
-    }
-}
-void tensor::deSigmoid(){
-    for(int i = 0; i < N; i++){
-        contents[i] = contents[i] > 0 ? 1 : 0;
-    }
-}
-
 void tensor::activate(activations::accTypes a){
-    switch(a){
-        case activations::ReLU:
-            ReLU();
-            break;
-        case activations::Sigmoid:
-            Sigmoid();
-            break;
-        default:
-            throw std::runtime_error("activation type not supported yet");
-        }
+    Activate(contents, N, a);
 }
 void tensor::deactivate(activations::accTypes a){
-    switch(a){
-        case activations::ReLU:
-            deReLU();
-            break;
-        case activations::Sigmoid:
-            deSigmoid();
-            break;
-        default:
-            throw std::runtime_error("activation type not supported yet");
-        }
+    DeActivate(contents, N, a);
 }
 
 // functions
@@ -439,13 +415,6 @@ void tensor::mult(tensor& output, const tensor& t) const{
 
     //activate threads
     threadManager::doJob();
-}
-void tensor::cpy(const tensor& t) {
-    dims = t.getDims();
-    N = t.getN();
-    free(contents);
-    contents = (float*)malloc(N * sizeof(float));
-    std::memcpy(contents, t.getContents(), N * sizeof(float));
 }
 
 // complex multipliers
