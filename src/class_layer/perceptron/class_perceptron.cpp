@@ -12,8 +12,7 @@ perceptron::perceptron(int in, int out):
 perceptron::~perceptron(){}
 
 void perceptron::forward(tensor& output, const tensor& input){
-    input.mult(output, weights);
-    output.add(output, bias);
+    input.addAndMult(output, weights, bias);
 
     output.activate(activations::ReLU);
 }

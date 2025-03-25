@@ -29,15 +29,16 @@ class tensor{
         static float* o;
         static float* a;
         static float* b;
-        static std::function<void(float*, float*, float*, long, long, long, long, int, int)> func;
+        static float* c;
+        static std::function<void(float*, float*, float*, float*, long, long, long, long, int, int)> func;
         static bool created;
 
         // static initialiser
         static void initaliseThreads();
         static void killThreads();
         static void setDims(long, long, long, long);
-        static void setData(float*, float*, float*);
-        static void setFunc(std::function<void(float*, float*, float*, long, long, long, long, int, int)>);
+        static void setData(float*, float*, float*, float*);
+        static void setFunc(std::function<void(float*, float*, float*, float*, long, long, long, long, int, int)>);
         static void doJob();
         static bool isActive();
         static void setWorkers(int workers);
@@ -80,6 +81,10 @@ class tensor{
     void sMult(tensor&, const tensor&) const;
     void sMult(tensor&, const float&) const;
     void mult(tensor&, const tensor&) const;
+
+    // hybrids
+    void addAndMult(tensor&, const tensor&, const tensor&) const;
+    void multAndInc(tensor&, const tensor&) const;
 
     // complex multipliers
     void fastDeMultL(tensor&, const tensor&) const;

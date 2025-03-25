@@ -451,7 +451,100 @@ TEST_F(TensorTest, Activations){
     myTensor2.cpy({-1,1,0.76159415595,-0.76159415595,0,0});
     EXPECT_TRUE(myTensor1 == myTensor2);
 }
+TEST_F(TensorTest, TensorAddAndMult) {
+    int n = 2;
+    int m = 3;
+    int k = 4;
+    int Ex = 2;
+    tensor myTensor1({Ex, n, k});
+    for(int i = 0; i < 16; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({Ex, k, m});
+    for(int i = 0; i < 24; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({Ex, n, m});
+    for(int i = 0; i < 12; i++)
+        myTensor3.getContents()[i] = i+1;
 
+    std::vector<float> data = {71,82,93,162,189,216,757,800,843,1040,1099,1158};
+    tensor myTensor4({Ex, n, m});
+    myTensor4.cpy(data);
+    
+    tensor myTensor5({Ex, n, m});
+    myTensor1.addAndMult(myTensor5, myTensor2, myTensor3);
+
+    EXPECT_TRUE(myTensor4 == myTensor5);
+}
+TEST_F(TensorTest, TensorAddAndMultN) {
+    int n = 3;
+    int m = 1;
+    int k = 4;
+    int Ex = 2;
+    tensor myTensor1({Ex, n, k});
+    for(int i = 0; i < 24; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({Ex, k, m});
+    for(int i = 0; i < 8; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({Ex, n, m});
+    for(int i = 0; i < 6; i++)
+        myTensor3.getContents()[i] = i+1;
+
+    tensor myTensor4({Ex, n, m});
+    std::vector<float> data = {31,72,113,386,491,596};
+    myTensor4.cpy(data);
+
+
+    tensor myTensor5({Ex, n, m});
+    myTensor1.addAndMult(myTensor5, myTensor2, myTensor3);
+    EXPECT_TRUE(myTensor4 == myTensor5);
+}
+TEST_F(TensorTest, TensorMultAndInc) {
+    int n = 2;
+    int m = 3;
+    int k = 4;
+    int Ex = 2;
+    tensor myTensor1({Ex, n, k});
+    for(int i = 0; i < 16; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({Ex, k, m});
+    for(int i = 0; i < 24; i++)
+        myTensor2.getContents()[i] = i+1;
+
+    std::vector<float> data = {71,82,93,162,189,216,757,800,843,1040,1099,1158};
+    tensor myTensor4({Ex, n, m});
+    myTensor4.cpy(data);
+    
+    tensor myTensor5({Ex, n, m});
+    for(int i = 0; i < 12; i++)
+        myTensor5.getContents()[i] = i+1;
+    myTensor1.multAndInc(myTensor5, myTensor2);
+
+    EXPECT_TRUE(myTensor4 == myTensor5);
+}
+TEST_F(TensorTest, TensorMultAndIncN) {
+    int n = 3;
+    int m = 1;
+    int k = 4;
+    int Ex = 2;
+    tensor myTensor1({Ex, n, k});
+    for(int i = 0; i < 24; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({Ex, k, m});
+    for(int i = 0; i < 8; i++)
+        myTensor2.getContents()[i] = i+1;
+
+    tensor myTensor4({Ex, n, m});
+    std::vector<float> data = {31,72,113,386,491,596};
+    myTensor4.cpy(data);
+
+
+    tensor myTensor5({Ex, n, m});
+    for(int i = 0; i < 6; i++)
+        myTensor5.getContents()[i] = i+1;
+    myTensor1.multAndInc(myTensor5, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor5);
+}
 
 #ifdef TENSORBENCHMARK
 void benchmarkHelper(){

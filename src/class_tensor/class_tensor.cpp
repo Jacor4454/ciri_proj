@@ -1,144 +1,11 @@
 #include "class_tensor.h"
 
-// shadies and funcs
-void add_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // checks are performed off thread
-    for(int i = offset; i < n; i+=step)
-        output[i] = a[i] + b[i];
-}
+#include "shadies.cpp"
 
-void s_mult_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // checks are performed off thread
-    for(int i = offset; i < n; i+=step)
-        output[i] = a[i] * b[i];
-}
-
-void add_K_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // checks are performed off thread
-    for(int i = offset; i < n; i+=step)
-        output[i] = a[i] + (*b);
-}
-
-void s_mult_K_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // checks are performed off thread
-    for(int i = offset; i < n; i+=step)
-        output[i] = a[i] * (*b);
-}
-
-void mult_M_skip_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // checks are performed off thread
-    for(int blk = 0; blk < block; blk++){
-        for(int i = 0; i < n; i++){
-            for(int j = offset; j < m; j+=step){
-                float tot = 0;
-                for(int k_ = 0; k_ < k; k_++){
-                    tot += a[((blk*n + i)*k) + k_] * b[((blk*k + k_)*m) + j];
-                }
-                output[((blk*n + i)*m) + j] = tot;
-            }
-        }
-    }
-}
-
-void mult_N_skip_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // checks are performed off thread
-    for(int blk = 0; blk < block; blk++){
-        for(int i = offset; i < n; i+=step){
-            for(int j = 0; j < m; j++){
-                float tot = 0;
-                for(int k_ = 0; k_ < k; k_++){
-                    tot += a[((blk*n + i)*k) + k_] * b[((blk*k + k_)*m) + j];
-                }
-                output[((blk*n + i)*m) + j] = tot;
-            }
-        }
-    }
-}
-
-void deMultL_M_skip_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // y == t.y
-    // output.x = t.x
-    // output.y = x
-
-    // a = kxn tb = kxm
-
-    for(int blk = 0; blk < block; blk++){
-        for(int i = 0; i < n; i++){
-            for(int j = offset; j < m; j+=step){
-                float tot = 0;
-                for(int k_ = 0; k_ < k; k_++){
-                    tot += a[(blk*k + k_)*n + i] * b[(blk*k + k_)*m + j];
-                }
-                output[(blk*n + i)*m + j] = tot;
-            }
-        }
-    }
-}
-
-void deMultL_N_skip_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // y == t.y
-    // output.x = t.x
-    // output.y = x
-
-    // a = kxn tb = kxm
-
-    for(int blk = 0; blk < block; blk++){
-        for(int i = offset; i < n; i+=step){
-            for(int j = 0; j < m; j++){
-                float tot = 0;
-                for(int k_ = 0; k_ < k; k_++){
-                    tot += a[(blk*k + k_)*n + i] * b[(blk*k + k_)*m + j];
-                }
-                output[(blk*n + i)*m + j] = tot;
-            }
-        }
-    }
-}
-
-void deMultR_M_skip_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // x == t.x
-    // output.x = t.y
-    // output.y = y
-
-    // a = nxk tb = mxk
-
-    for(int blk = 0; blk < block; blk++){
-        for(int i = 0; i < n; i++){
-            for(int j = offset; j < m; j+=step){
-                float tot = 0;
-                for(int k_ = 0; k_ < k; k_++){
-                    tot += a[(blk*n + i)*k + k_] * b[(blk*m + j)*k + k_];
-                }
-                output[(blk*n + i)*m + j] = tot;
-            }
-        }
-    }
-}
-
-void deMultR_N_skip_shadie(float* output, float* a, float* b, long n, long m, long k, long block, int offset, int step){
-    // x == t.x
-    // output.x = t.y
-    // output.y = y
-
-    // a = nxk tb = mxk
-
-    for(int blk = 0; blk < block; blk++){
-        for(int i = offset; i < n; i+=step){
-            for(int j = 0; j < m; j++){
-                float tot = 0;
-                for(int k_ = 0; k_ < k; k_++){
-                    tot += a[(blk*n + i)*k + k_] * b[(blk*m + j)*k + k_];
-                }
-                output[(blk*n + i)*m + j] = tot;
-            }
-        }
-    }
-}
-
-void handler(bool* alive, int id, int workers, bool* activate, long* n, long* m, long* k, long* block, float** output, float** a, float** b, std::function<void(float*, float*, float*, long, long, long, long, int, int)> *f){
+void handler(bool* alive, int id, int workers, bool* activate, long* n, long* m, long* k, long* block, float** output, float** a, float** b, float** c, std::function<void(float*, float*, float*, float*, long, long, long, long, int, int)> *f){
     while(*alive){
         if(*activate){
-            (*f)(*output, *a, *b, *n, *m, *k, *block, id, workers);
+            (*f)(*output, *a, *b, *c, *n, *m, *k, *block, id, workers);
             *activate = false;
         }
     }
@@ -158,7 +25,8 @@ long tensor::threadManager::block = 1;
 float* tensor::threadManager::o = nullptr;
 float* tensor::threadManager::a = nullptr;
 float* tensor::threadManager::b = nullptr;
-std::function<void(float*, float*, float*, long, long, long, long, int, int)> tensor::threadManager::func = add_shadie;
+float* tensor::threadManager::c = nullptr;
+std::function<void(float*, float*, float*, float*, long, long, long, long, int, int)> tensor::threadManager::func = add_shadie;
 bool tensor::threadManager::created = false;
 
 // static thread functions
@@ -174,7 +42,7 @@ void tensor::threadManager::initaliseThreads(){
         activates[i] = false;
     
     for(int i = 0; i < workers; i++){
-        threads.push_back(std::thread(handler, &alive, i, workers, &(activates[i]), &n, &m, &k, &block, &o, &a, &b, &func));
+        threads.push_back(std::thread(handler, &alive, i, workers, &(activates[i]), &n, &m, &k, &block, &o, &a, &b, &c, &func));
     }
 }
 void tensor::threadManager::killThreads(){
@@ -197,12 +65,13 @@ void tensor::threadManager::setDims(long n_, long m_, long k_, long block_){
     k = k_;
     block = block_;
 }
-void tensor::threadManager::setData(float* output_, float* a_, float* b_){
+void tensor::threadManager::setData(float* output_, float* a_, float* b_, float* c_){
     o = output_;
     a = a_;
     b = b_;
+    c = c_;
 }
-void tensor::threadManager::setFunc(std::function<void(float*, float*, float*, long, long, long, long, int, int)> func_){
+void tensor::threadManager::setFunc(std::function<void(float*, float*, float*, float*, long, long, long, long, int, int)> func_){
     func = func_;
 }
 void tensor::threadManager::doJob(){
@@ -301,7 +170,7 @@ void tensor::add(tensor& output, const tensor& t) const{
         throw std::runtime_error("addition output wrong dimensions");
 
     // data
-    threadManager::setData(output.getContents(), contents, t.getContents());
+    threadManager::setData(output.getContents(), contents, t.getContents(), nullptr);
 
     // dims
     threadManager::setDims(N, 1, 1, 1);
@@ -318,7 +187,7 @@ void tensor::add(tensor& output, const float& f) const{
 
     // data
     float fcp = f;
-    threadManager::setData(output.getContents(), contents, &fcp);
+    threadManager::setData(output.getContents(), contents, &fcp, nullptr);
 
     // dims
     threadManager::setDims(N, 1, 1, 1);
@@ -336,7 +205,7 @@ void tensor::sMult(tensor& output, const tensor& t) const{
         throw std::runtime_error("straight multiplication output wrong dimensions");
 
     // data
-    threadManager::setData(output.getContents(), contents, t.getContents());
+    threadManager::setData(output.getContents(), contents, t.getContents(), nullptr);
 
     // dims
     threadManager::setDims(N, 1, 1, 1);
@@ -353,7 +222,7 @@ void tensor::sMult(tensor& output, const float& f) const{
 
     // data
     float fcp = f;
-    threadManager::setData(output.getContents(), contents, &fcp);
+    threadManager::setData(output.getContents(), contents, &fcp, nullptr);
 
     // dims
     threadManager::setDims(N, 1, 1, 1);
@@ -405,13 +274,123 @@ void tensor::mult(tensor& output, const tensor& t) const{
     threadManager::setDims(dims[x-2], m, dims[x-1], block);
 
     // data
-    threadManager::setData(output.getContents(), contents, t.getContents());
+    threadManager::setData(output.getContents(), contents, t.getContents(), nullptr);
     
     // func
     if(m > 1)
         threadManager::setFunc(&mult_M_skip_shadie);
     else 
         threadManager::setFunc(&mult_N_skip_shadie);
+
+    //activate threads
+    threadManager::doJob();
+}
+
+// hybrids
+void tensor::addAndMult(tensor& output, const tensor& t, const tensor& b) const{
+    // this is LHS 
+    // t is RHS
+    // n is this(Y)
+    // k is this(X) & t(Y)
+    // m is t(X)
+
+    // if x is dims.size()
+    // the first x-2 dims must equal
+    // then dims[x-2] => y
+    // then dims[x-1] => x
+
+    if(dims.size() != t.getDims().size())
+        throw std::runtime_error("add+multiplicaiton of wrong length dimensions");
+
+    if(dims.size() < 2)
+        throw std::runtime_error("add+multiplicaiton must have 2 or more dimensions");
+
+    
+    int x = dims.size();
+    long block = 1;
+    for(int i = 0; i < x-2; i++){
+        if(dims[i] != t.getDims()[i])
+            throw std::runtime_error("add+multiplicaiton of wrong value dimensions");
+        if(dims[i] != output.getDims()[i])
+            throw std::runtime_error("add+multiplicaiton output of wrong value dimensions");
+        block *= dims[i];
+    }
+
+    if(dims[x-1] != t.getDims()[x-2])
+        throw std::runtime_error("add+mult mismatched K dim");
+    if(output.getDims()[x-1] != t.getDims()[x-1])
+        throw std::runtime_error("add+mult mismatched m dim");
+    if(output.getDims()[x-2] != dims[x-2])
+        throw std::runtime_error("add+mult mismatched n dim");
+
+    if(output.getDims() != b.getDims())
+        throw std::runtime_error("add+mult output and adder dimentions mismatch");
+    
+    // dims
+    int m = t.getDims()[x-1];
+    threadManager::setDims(dims[x-2], m, dims[x-1], block);
+
+    // data
+    threadManager::setData(output.getContents(), contents, t.getContents(), b.getContents());
+    
+    // func
+    if(m > 1)
+        threadManager::setFunc(&multNadd_M_skip_shadie);
+    else 
+        threadManager::setFunc(&multNadd_N_skip_shadie);
+
+    //activate threads
+    threadManager::doJob();
+}
+
+void tensor::multAndInc(tensor& output, const tensor& t) const{
+    // this is LHS 
+    // t is RHS
+    // n is this(Y)
+    // k is this(X) & t(Y)
+    // m is t(X)
+
+    // if x is dims.size()
+    // the first x-2 dims must equal
+    // then dims[x-2] => y
+    // then dims[x-1] => x
+
+    if(dims.size() != t.getDims().size())
+        throw std::runtime_error("add+multiplicaiton of wrong length dimensions");
+
+    if(dims.size() < 2)
+        throw std::runtime_error("add+multiplicaiton must have 2 or more dimensions");
+
+    
+    int x = dims.size();
+    long block = 1;
+    for(int i = 0; i < x-2; i++){
+        if(dims[i] != t.getDims()[i])
+            throw std::runtime_error("add+multiplicaiton of wrong value dimensions");
+        if(dims[i] != output.getDims()[i])
+            throw std::runtime_error("add+multiplicaiton output of wrong value dimensions");
+        block *= dims[i];
+    }
+
+    if(dims[x-1] != t.getDims()[x-2])
+        throw std::runtime_error("add+mult mismatched K dim");
+    if(output.getDims()[x-1] != t.getDims()[x-1])
+        throw std::runtime_error("add+mult mismatched m dim");
+    if(output.getDims()[x-2] != dims[x-2])
+        throw std::runtime_error("add+mult mismatched n dim");
+
+    // dims
+    int m = t.getDims()[x-1];
+    threadManager::setDims(dims[x-2], m, dims[x-1], block);
+
+    // data
+    threadManager::setData(output.getContents(), contents, t.getContents(), nullptr);
+    
+    // func
+    if(m > 1)
+        threadManager::setFunc(&multNInc_M_skip_shadie);
+    else 
+        threadManager::setFunc(&multNInc_N_skip_shadie);
 
     //activate threads
     threadManager::doJob();
@@ -454,7 +433,7 @@ void tensor::fastDeMultL(tensor& output, const tensor& t) const{
     threadManager::setDims(dims[x-1], m, dims[x-2], block);
 
     // data
-    threadManager::setData(output.getContents(), contents, t.getContents());
+    threadManager::setData(output.getContents(), contents, t.getContents(), nullptr);
     
     // func
     if(m > 1)
@@ -501,7 +480,7 @@ void tensor::fastDeMultR(tensor& output, const tensor& t) const{
     threadManager::setDims(dims[x-2], m, dims[x-1], block);
 
     // data
-    threadManager::setData(output.getContents(), contents, t.getContents());
+    threadManager::setData(output.getContents(), contents, t.getContents(), nullptr);
     
     // func
     if(m > 1)

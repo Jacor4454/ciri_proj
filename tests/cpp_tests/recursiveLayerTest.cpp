@@ -53,6 +53,7 @@ TEST_F(RecursiveLayerTest, forward) {
     tensor input({n,k});
     tensor output({n,m});
     b->forward(output, input);
+    b->forward(output, input);
     delete b;
 }
 TEST_F(RecursiveLayerTest, backwards) {

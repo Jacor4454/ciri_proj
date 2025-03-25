@@ -6,7 +6,6 @@ recursive::recursive(int in, int out):
     rWeights({out,out}),
     prev({1,out}),
     dInt({1,out}),
-    forwardTemp({1,out}),
     dbias({1,out}),
     dweights({in,out}),
     dweightsTemp({in,out}),
@@ -17,13 +16,10 @@ recursive::recursive(int in, int out):
 recursive::~recursive(){}
 
 void recursive::forward(tensor& output, const tensor& input){
-    input.mult(output, weights);
+    input.addAndMult(output, weights, bias);
+    prev.multAndInc(output, rWeights);
     
-    prev.mult(forwardTemp, rWeights);
-    prev.cpy(input);
-
-    output.add(output, forwardTemp);
-    output.add(output, bias);
+    prev.cpy(output);
     
     output.activate(activations::ReLU);
 }

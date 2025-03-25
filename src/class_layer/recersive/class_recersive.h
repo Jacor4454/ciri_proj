@@ -10,7 +10,6 @@ class recursive : public BaseLayer{
     tensor rWeights;
     tensor prev;
     tensor dInt;
-    tensor forwardTemp;
     tensor dbias;
     tensor dweights;
     tensor dweightsTemp;
