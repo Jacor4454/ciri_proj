@@ -5,6 +5,7 @@
 
 class perceptron : public BaseLayer{
     private:
+    std::vector<int> weightsDims;
     tensor weights;
     tensor bias;
     tensor dweights;
@@ -13,7 +14,7 @@ class perceptron : public BaseLayer{
     tensor hold;
 
     public:
-    perceptron(int in, int out);
+    perceptron(std::vector<int>, std::vector<int>);
     virtual ~perceptron();
 
     void forward(tensor&, const tensor&);

@@ -1,12 +1,14 @@
 #include "class_perceptron.h"
 
-perceptron::perceptron(int in, int out):
-    weights({in,out}),
-    bias({1,out}),
-    dweights({in,out}),
-    dweightsTemp({in,out}),
-    dbias({1,out}),
-    hold({1,out})
+
+perceptron::perceptron(std::vector<int> in, std::vector<int> out):
+    weightsDims(BaseLayer::makeWeightsDims(in, out)),
+    weights(weightsDims),
+    bias(out),
+    dweights(weightsDims),
+    dweightsTemp(weightsDims),
+    dbias(out),
+    hold(out)
 {}
 
 perceptron::~perceptron(){}

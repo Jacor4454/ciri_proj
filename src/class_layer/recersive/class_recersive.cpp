@@ -1,16 +1,18 @@
 #include "class_recersive.h"
 
-recursive::recursive(int in, int out):
-    weights({in,out}),
-    bias({1,out}),
-    rWeights({out,out}),
-    prev({1,out}),
-    dInt({1,out}),
-    dbias({1,out}),
-    dweights({in,out}),
-    dweightsTemp({in,out}),
-    dRWeights({out,out}),
-    dRWeightsTemp({out,out})
+recursive::recursive(std::vector<int> in, std::vector<int> out):
+    weightsDims(BaseLayer::makeWeightsDims(in, out)),
+    hweightsDims(BaseLayer::makeHWeightsDims(out)),
+    weights(weightsDims),
+    bias(out),
+    rWeights(hweightsDims),
+    prev(out),
+    dInt(out),
+    dbias(out),
+    dweights(weightsDims),
+    dweightsTemp(weightsDims),
+    dRWeights(hweightsDims),
+    dRWeightsTemp(hweightsDims)
 {}
 
 recursive::~recursive(){}

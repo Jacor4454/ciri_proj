@@ -41,7 +41,7 @@ class PerceptronLayerTest : public testing::Test {
 
 // Tests that the Foo::Bar() method does Abc.
 TEST_F(PerceptronLayerTest, MakeLayer) {
-    BaseLayer* b = new perceptron(784, 150);
+    BaseLayer* b = new perceptron({1, 784}, {1, 150});
     EXPECT_EQ(b->getLayerType(), "Perceptron");
     delete b;
 }
@@ -49,7 +49,7 @@ TEST_F(PerceptronLayerTest, forward) {
     int n = 1;
     int m = 150;
     int k = 784;
-    BaseLayer* b = new perceptron(k, m);
+    BaseLayer* b = new perceptron({n,k}, {n,m});
     tensor input({n,k});
     tensor output({n,m});
     b->forward(output, input);
@@ -59,7 +59,7 @@ TEST_F(PerceptronLayerTest, backwards) {
     int n = 1;
     int m = 150;
     int k = 784;
-    BaseLayer* b = new perceptron(k, m);
+    BaseLayer* b = new perceptron({n,k}, {n,m});
     tensor dinput({n,k});
     tensor input({n,k});
     tensor doutput({n,m});
@@ -69,9 +69,10 @@ TEST_F(PerceptronLayerTest, backwards) {
     delete b;
 }
 TEST_F(PerceptronLayerTest, learn) {
+    int n = 1;
     int m = 150;
     int k = 784;
-    BaseLayer* b = new perceptron(k, m);
+    BaseLayer* b = new perceptron({n,k}, {n,m});
     b->learn(0.4);
     delete b;
 }

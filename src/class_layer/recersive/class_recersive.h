@@ -5,6 +5,8 @@
 
 class recursive : public BaseLayer{
     private:
+    std::vector<int> weightsDims;
+    std::vector<int> hweightsDims;
     tensor weights;
     tensor bias;
     tensor rWeights;
@@ -17,7 +19,7 @@ class recursive : public BaseLayer{
     tensor dRWeightsTemp;
 
     public:
-    recursive(int in, int out);
+    recursive(std::vector<int>, std::vector<int>);
     virtual ~recursive();
 
     void forward(tensor&, const tensor&);

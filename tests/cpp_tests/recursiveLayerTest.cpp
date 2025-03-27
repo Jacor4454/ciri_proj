@@ -41,7 +41,7 @@ class RecursiveLayerTest : public testing::Test {
 
 // Tests that the Foo::Bar() method does Abc.
 TEST_F(RecursiveLayerTest, MakeLayer) {
-    BaseLayer* b = new recursive(784, 150);
+    BaseLayer* b = new recursive({1,784}, {1,150});
     EXPECT_EQ(b->getLayerType(), "Recersive");
     delete b;
 }
@@ -49,7 +49,7 @@ TEST_F(RecursiveLayerTest, forward) {
     int n = 1;
     int m = 150;
     int k = 784;
-    BaseLayer* b = new recursive(k, m);
+    BaseLayer* b = new recursive({n,k}, {n,m});
     tensor input({n,k});
     tensor output({n,m});
     b->forward(output, input);
@@ -60,7 +60,7 @@ TEST_F(RecursiveLayerTest, backwards) {
     int n = 1;
     int m = 150;
     int k = 784;
-    BaseLayer* b = new recursive(k, m);
+    BaseLayer* b = new recursive({n,k}, {n,m});
     tensor dinput({n,k});
     tensor input({n,k});
     tensor doutput({n,m});
@@ -70,9 +70,10 @@ TEST_F(RecursiveLayerTest, backwards) {
     delete b;
 }
 TEST_F(RecursiveLayerTest, learn) {
+    int n = 1;
     int m = 150;
     int k = 784;
-    BaseLayer* b = new recursive(k, m);
+    BaseLayer* b = new recursive({n,k}, {n,m});
     b->learn(0.4);
     delete b;
 }
