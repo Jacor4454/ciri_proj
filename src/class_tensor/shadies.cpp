@@ -46,7 +46,6 @@ void mult_M_skip_shadie(inputs){
         }
     }
 }
-
 // matrix multiply, splitting job by N
 void mult_N_skip_shadie(inputs){
     // checks are performed off thread
@@ -83,7 +82,6 @@ void deMultL_M_skip_shadie(inputs){
         }
     }
 }
-
 // matrix multiply, inverting the left(a) matrix, splitting job by N
 void deMultL_N_skip_shadie(inputs){
     // y == t.y
@@ -125,7 +123,6 @@ void deMultR_M_skip_shadie(inputs){
         }
     }
 }
-
 // matrix multiply, inverting the right(b) matrix, splitting job by N
 void deMultR_N_skip_shadie(inputs){
     // x == t.x
@@ -161,7 +158,6 @@ void multNadd_M_skip_shadie(inputs){    // checks are performed off thread
         }
     }
 }
-
 // multiply a and b, add c and output, splitting job by M
 void multNadd_N_skip_shadie(inputs){
     // checks are performed off thread
