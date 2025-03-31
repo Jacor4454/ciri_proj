@@ -451,6 +451,31 @@ TEST_F(TensorTest, Activations){
     myTensor2.cpy({-1,1,0.76159415595,-0.76159415595,0,0});
     EXPECT_TRUE(myTensor1 == myTensor2);
 }
+TEST_F(TensorTest, Gradients){
+    // not done cross entropy yet cos come on
+
+    // squared error
+    tensor myTensor1({2,3}); // vals
+    tensor myTensor2({2,3}); // correct
+    for(int i = 0; i < 6; i++){
+        myTensor1[i] = i-2;
+        myTensor2[i] = i;
+    }
+    EXPECT_EQ(myTensor1.loss(myTensor2, errors::SE), 24);
+    tensor myTensor3({2,3}); // gradient output
+    myTensor1.gradient(myTensor3, myTensor2, errors::SE);
+    tensor myTensor4({2,3}); // expected
+    myTensor4.cpy({-4,-4,-4,-4,-4,-4});
+    EXPECT_TRUE(myTensor3 == myTensor4);
+
+    // mean squared error    
+    for(int i = 0; i < 6; i++)
+        myTensor1[i] = i-2;
+    EXPECT_EQ(myTensor1.loss(myTensor2, errors::MSE), 4);
+    myTensor1.gradient(myTensor3, myTensor2, errors::MSE);
+    myTensor4.cpy({-2.0/3,-2.0/3,-2.0/3,-2.0/3,-2.0/3,-2.0/3});
+    EXPECT_TRUE(myTensor3 == myTensor4);
+}
 TEST_F(TensorTest, TensorAddAndMult) {
     int n = 2;
     int m = 3;

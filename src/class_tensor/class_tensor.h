@@ -11,6 +11,7 @@
 #include <math.h>
 
 #include "./activators/activators.h"
+#include "./gradients/gradients.h"
 
 // main tensor definition for CPU bound compute
 class tensor{
@@ -74,6 +75,10 @@ class tensor{
     // accs
     void activate(activations::accTypes);
     void deactivate(activations::accTypes);
+
+    // loss
+    float loss(const tensor&, errors::errTypes);
+    void gradient(tensor&, const tensor&, errors::errTypes);
 
     // functions
     void add(tensor&, const tensor&) const;

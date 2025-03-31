@@ -162,6 +162,22 @@ void tensor::deactivate(activations::accTypes a){
     DeActivate(contents, N, a);
 }
 
+// loss
+float tensor::loss(const tensor& correct, errors::errTypes e){
+    if(correct.getDims() != dims)
+        throw std::runtime_error("loss correct of incorrect dims");
+    
+    return Loss(contents, correct.getContents(), N, e);
+}
+void tensor::gradient(tensor& output, const tensor& correct, errors::errTypes e){
+    if(output.getDims() != dims)
+        throw std::runtime_error("gradient output of incorrect dims");
+    if(correct.getDims() != dims)
+        throw std::runtime_error("gradient correct of incorrect dims");
+
+    Gradient(output.getContents(), contents, correct.getContents(), N, e);
+}
+
 // functions
 void tensor::add(tensor& output, const tensor& t) const{
     if(dims != t.getDims())
@@ -342,7 +358,6 @@ void tensor::addAndMult(tensor& output, const tensor& t, const tensor& b) const{
     //activate threads
     threadManager::doJob();
 }
-
 void tensor::multAndInc(tensor& output, const tensor& t) const{
     // this is LHS 
     // t is RHS
