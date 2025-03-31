@@ -10,6 +10,7 @@ class learningNetwork : public network {
     public:
     learningNetwork(inputDefObject, std::vector<layerDefObject>, outputDefObject);
     // ~learningNetwork();
+    void backward(const tensor& correct);
 };
 
 

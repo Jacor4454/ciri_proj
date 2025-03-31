@@ -9,6 +9,14 @@ learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> l
 }
 
 
+void learningNetwork::backward(const tensor& correct){
+    ts[N].gradient(invts[N], correct, errors::MSE);
+
+    for(int i = N-1; i >= 0; i--){
+        layers[i]->backward(invts[i], ts[i], invts[i+1], ts[i+1], ts[i+1]);//first ts[i+1] is back in time
+    }
+}
+
 
 
 

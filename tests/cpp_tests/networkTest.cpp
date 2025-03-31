@@ -49,6 +49,8 @@ TEST_F(NetworkTest, MakeLearningNetwork) {
     learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid));
     tensor myTensor1({1, 784});
     myNetwork.forward(myTensor1);
+    tensor myTensor2({1, 10});
+    myNetwork.backward(myTensor2);
 }
 
 

@@ -53,7 +53,7 @@ class network{
     network(inputDefObject, std::vector<layerDefObject>, outputDefObject);
     ~network();
 
-    void forward(tensor& input);
+    void forward(const tensor& input);
 };
 
 

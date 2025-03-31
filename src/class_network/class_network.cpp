@@ -43,7 +43,7 @@ network::~network(){
             delete layers[i];
 }
 
-void network::forward(tensor& input){
+void network::forward(const tensor& input){
     ts[0].cpy(input);
 
     for(int i = 0; i < N; i++){
