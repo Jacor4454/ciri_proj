@@ -1,7 +1,7 @@
 #include "class_network.h"
 
 // netowrk construction helper to get the network from template
-BaseLayer* getLayer(layers::layerTypes l, std::vector<int>& in, std::vector<int>& out){
+BaseLayer* network::getLayer(layers::layerTypes l, std::vector<int>& in, std::vector<int>& out){
     BaseLayer* output = nullptr;
     switch(l){
         case layers::perceptron:
@@ -43,11 +43,15 @@ network::~network(){
             delete layers[i];
 }
 
-void network::forward(const tensor& input){
-    ts[0].cpy(input);
+void network::forward(const std::vector<tensor>& input){
+    for(int it = 0; it < input.size(); it++){
+        ts[0].cpy(input[it]);
 
-    for(int i = 0; i < N; i++){
-        layers[i]->forward(ts[i+1], ts[i]);
+        for(int i = 0; i < N; i++){
+            layers[i]->forward(ts[i+1], ts[i]);
+        }
+
+        // do some result handling
     }
 }
 

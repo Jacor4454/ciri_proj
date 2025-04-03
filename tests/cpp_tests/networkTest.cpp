@@ -42,15 +42,17 @@ class NetworkTest : public testing::Test {
 TEST_F(NetworkTest, MakeNetwork) {
     network myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid));
     tensor myTensor1({1, 784});
-    myNetwork.forward(myTensor1);
+    myNetwork.forward({myTensor1});
 }
 
 TEST_F(NetworkTest, MakeLearningNetwork) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid));
-    tensor myTensor1({1, 784});
-    myNetwork.forward(myTensor1);
-    tensor myTensor2({1, 10});
-    myNetwork.backward(myTensor2);
+    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 2);
+    tensor myTensor1a({1, 784});
+    tensor myTensor1b({1, 784});
+    myNetwork.forward({myTensor1a, myTensor1b});
+    tensor myTensor2a({1, 10});
+    tensor myTensor2b({1, 10});
+    myNetwork.backward({myTensor2a, myTensor2b});
 }
 
 

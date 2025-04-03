@@ -44,16 +44,17 @@ class outputDefObject {
 
 
 class network{
-    protected:
+    private:
     std::vector<BaseLayer*> layers;
     std::vector<std::vector<int>> dimss;
     std::vector<tensor> ts;
     int N = 0;
     public:
+    static BaseLayer* getLayer(layers::layerTypes, std::vector<int>&, std::vector<int>&);
     network(inputDefObject, std::vector<layerDefObject>, outputDefObject);
     ~network();
 
-    void forward(const tensor& input);
+    void forward(const std::vector<tensor>& input);
 };
 
 
