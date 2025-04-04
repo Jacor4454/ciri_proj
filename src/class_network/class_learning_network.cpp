@@ -5,6 +5,7 @@ learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> l
     // get network size and expand/reserve
     N = ls.size()+1;
     currMaxItt = maxItt;
+    lastItt = 0;
     layers.resize(N, nullptr);
     dimss.resize(N+1);
     tss.resize(currMaxItt+1);
@@ -31,14 +32,31 @@ learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> l
         invts.push_back(tensor(v));
 }
 
+void learningNetwork::resizeItt(int newCurr){
+    // check input (no throw here)
+    if(newCurr <= currMaxItt)
+        return;
+    
+    // get network size and expand/reserve
+    tss.resize(newCurr+1);
+    for(int i = currMaxItt+1; i < newCurr+1; i++)
+        tss[i].reserve(N+1);
+    
+    // make tensors for passing
+    for(auto& v : dimss)
+        for(int i = currMaxItt+1; i < newCurr+1; i++)
+            tss[i].push_back(tensor(v));
+
+    currMaxItt = newCurr;
+}
 
 void learningNetwork::forward(const std::vector<tensor>& input){
     int itts = input.size();
+    lastItt = itts;
 
     if(itts > currMaxItt)
-        // will be a resizer but for now is throw
-        throw std::runtime_error("itteration excedes allocated itteration limit");
-    
+        resizeItt(itts);
+
     for(int it = 0; it < input.size(); it++){
         tss[it+1][0].cpy(input[it]);
 
@@ -54,9 +72,9 @@ void learningNetwork::forward(const std::vector<tensor>& input){
 void learningNetwork::backward(const std::vector<tensor>& correct){
     int itts = correct.size();
 
-    if(itts > currMaxItt)
+    if(itts != lastItt)
         // will be a resizer but for now is throw
-        throw std::runtime_error("itteration excedes allocated itteration limit");
+        throw std::runtime_error("backward: itteration does not match previous itteration");
 
     // zero layers carry (if applicable)
 

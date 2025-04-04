@@ -8,9 +8,11 @@ class learningNetwork {
     std::vector<BaseLayer*> layers;
     std::vector<std::vector<int>> dimss;
     int N = 0;
-    int currMaxItt;
+    int currMaxItt, lastItt;
     std::vector<std::vector<tensor>> tss;
     std::vector<tensor> invts;
+
+    void resizeItt(int newCurr);
 
     public:
     learningNetwork(inputDefObject, std::vector<layerDefObject>, outputDefObject, int);

@@ -55,6 +55,17 @@ TEST_F(NetworkTest, MakeLearningNetwork) {
     myNetwork.backward({myTensor2a, myTensor2b});
 }
 
+TEST_F(NetworkTest, LearningNetworkResize) {
+    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
+    tensor myTensor1a({1, 784});
+    tensor myTensor1b({1, 784});
+    myNetwork.forward({myTensor1a, myTensor1b}); // resizes from 1 to 2, should throw no errors
+    tensor myTensor2a({1, 10});
+    tensor myTensor2b({1, 10});
+    EXPECT_THROW(myNetwork.backward({myTensor2a}), std::runtime_error); // cos forward was 2, this will throw
+    myNetwork.backward({myTensor2a, myTensor2b}); // but this will pass
+}
+
 
 }
 }
