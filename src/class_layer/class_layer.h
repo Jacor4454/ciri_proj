@@ -2,6 +2,7 @@
 #define CLASS_ABS_LAYER_H
 
 #include "../class_tensor/class_tensor.h"
+#include "./learners/class_learner.h"
 
 class BaseLayer{
 
@@ -13,7 +14,7 @@ class BaseLayer{
 
     virtual void forward(tensor&, const tensor&);
     virtual void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
-    virtual void learn(float alpha);
+    virtual void learn();
     
     virtual std::string getLayerType();
 

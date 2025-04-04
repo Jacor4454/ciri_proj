@@ -10,13 +10,12 @@ class recursive : public BaseLayer{
     tensor weights;
     tensor bias;
     tensor rWeights;
-    tensor prev;
+    BaseLearner* dweight;
+    BaseLearner* drweight;
+    BaseLearner* dbias;
     tensor dInt;
-    tensor dbias;
-    tensor dweights;
-    tensor dweightsTemp;
-    tensor dRWeights;
-    tensor dRWeightsTemp;
+    tensor prev;
+    
 
     public:
     recursive(std::vector<int>, std::vector<int>);
@@ -24,7 +23,7 @@ class recursive : public BaseLayer{
 
     void forward(tensor&, const tensor&);
     void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
-    void learn(float alpha);
+    void learn();
 
     std::string getLayerType();
 };

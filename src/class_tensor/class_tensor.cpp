@@ -410,6 +410,21 @@ void tensor::multAndInc(tensor& output, const tensor& t) const{
     //activate threads
     threadManager::doJob();
 }
+void tensor::alphaSub(tensor& output, float delta) const{
+    if(dims != output.getDims())
+        throw std::runtime_error("addition output wrong dimensions");
+    // data
+    threadManager::setData(output.getContents(), contents, &delta, nullptr);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+    
+    // func
+    threadManager::setFunc(&alpha_sub);
+
+    //activate threads
+    threadManager::doJob();
+}
 
 // complex multipliers
 void tensor::fastDeMultL(tensor& output, const tensor& t) const{
@@ -455,6 +470,53 @@ void tensor::fastDeMultL(tensor& output, const tensor& t) const{
         threadManager::setFunc(&deMultL_M_skip_shadie);
     else 
         threadManager::setFunc(&deMultL_N_skip_shadie);
+
+    //activate threads
+    threadManager::doJob();
+}
+void tensor::fastDeMultLInc(tensor& output, const tensor& t) const{
+    if(dims.size() != t.getDims().size())
+        throw std::runtime_error("multiplicaiton of wrong length dimensions");
+
+    if(dims.size() < 2)
+        throw std::runtime_error("multiplicaiton must have 2 or more dimensions");
+
+    
+    int x = dims.size();
+    long block = 1;
+    for(int i = 0; i < x-2; i++){
+        if(dims[i] != t.getDims()[i])
+            throw std::runtime_error("multiplicaiton of wrong value dimensions");
+        if(dims[i] != output.getDims()[i])
+            throw std::runtime_error("multiplicaiton output of wrong value dimensions");
+        block *= dims[i];
+    }
+
+    // y = dims[x-2]
+    if(dims[x-2] != t.getDims()[x-2])
+        throw std::runtime_error("multiplicaiton mismatched K dim");
+    if(output.getDims()[x-1] != t.getDims()[x-1])
+        throw std::runtime_error("multiplicaiton mismatched m dim");
+    if(output.getDims()[x-2] != dims[x-1])
+        throw std::runtime_error("multiplicaiton mismatched n dim");
+    
+    // dims
+    // y == t.y
+    // output.x = t.x
+    // output.y = x
+
+    // a = kxn tb = kxm
+    int m = t.getDims()[x-1];
+    threadManager::setDims(dims[x-1], m, dims[x-2], block);
+
+    // data
+    threadManager::setData(output.getContents(), contents, t.getContents(), nullptr);
+    
+    // func
+    if(m > 1)
+        threadManager::setFunc(&deMultLInc_M_skip_shadie);
+    else 
+        threadManager::setFunc(&deMultLInc_N_skip_shadie);
 
     //activate threads
     threadManager::doJob();

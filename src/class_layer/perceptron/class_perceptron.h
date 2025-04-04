@@ -8,9 +8,8 @@ class perceptron : public BaseLayer{
     std::vector<int> weightsDims;
     tensor weights;
     tensor bias;
-    tensor dweights;
-    tensor dbias;
-    tensor dweightsTemp;
+    BaseLearner* dweight;
+    BaseLearner* dbias;
     tensor hold;
 
     public:
@@ -19,7 +18,7 @@ class perceptron : public BaseLayer{
 
     void forward(tensor&, const tensor&);
     void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
-    void learn(float alpha);
+    void learn();
 
     std::string getLayerType();
 };

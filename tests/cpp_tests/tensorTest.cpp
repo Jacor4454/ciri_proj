@@ -319,6 +319,45 @@ TEST_F(TensorTest, TensorDeMultLN) {
     myTensor1.fastDeMultL(myTensor4, myTensor2);
     EXPECT_TRUE(myTensor4 == myTensor3);
 }
+TEST_F(TensorTest, TensorDeMultLInc) {
+    int n = 2;
+    int m = 3;
+    int k = 4;
+    tensor myTensor1({k, n});
+    for(int i = 0; i < 8; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({k, m});
+    for(int i = 0; i < 12; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({n, m});
+    std::vector<float> data = {119,136,153,144,165,186};
+    myTensor3.cpy(data);
+    tensor myTensor4({n, m});
+    for(int i = 0; i < 6; i++)
+        myTensor4[i] = i+1;
+    myTensor1.fastDeMultLInc(myTensor4, myTensor2);
+    std::cout << myTensor3 << myTensor4;
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
+TEST_F(TensorTest, TensorDeMultLNInc) {
+    int n = 3;
+    int m = 1;
+    int k = 4;
+    tensor myTensor1({k, n});
+    for(int i = 0; i < 12; i++)
+        myTensor1.getContents()[i] = i+1;
+    tensor myTensor2({k, m});
+    for(int i = 0; i < 4; i++)
+        myTensor2.getContents()[i] = i+1;
+    tensor myTensor3({n, m});
+    std::vector<float> data = {71,82,93};
+    myTensor3.cpy(data);
+    tensor myTensor4({n, m});
+    for(int i = 0; i < 3; i++)
+        myTensor4[i] = i+1;
+    myTensor1.fastDeMultLInc(myTensor4, myTensor2);
+    EXPECT_TRUE(myTensor4 == myTensor3);
+}
 TEST_F(TensorTest, TensorDeMultR) {
     int n = 2;
     int m = 3;
@@ -570,6 +609,24 @@ TEST_F(TensorTest, TensorMultAndIncN) {
     myTensor1.multAndInc(myTensor5, myTensor2);
     EXPECT_TRUE(myTensor4 == myTensor5);
 }
+TEST_F(TensorTest, TensorAlpha) {
+    int n = 3;
+    int m = 8;
+    int Ex = 2;
+    tensor myTensor1({Ex, n, m});
+    tensor myTensor2({Ex, n, m});
+    tensor myTensor3({Ex, n, m});
+    for(int i = 0; i < 24; i++){
+        myTensor1[i] = (i+1) * 4;
+        myTensor2[i] = 17;
+        myTensor3[i] = 17 - (i+1);
+    }
+
+
+    myTensor1.alphaSub(myTensor2, 0.25);
+    EXPECT_TRUE(myTensor3 == myTensor2);
+}
+
 
 #ifdef TENSORBENCHMARK
 void benchmarkHelper(){

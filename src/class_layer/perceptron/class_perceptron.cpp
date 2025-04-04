@@ -5,13 +5,16 @@ perceptron::perceptron(std::vector<int> in, std::vector<int> out):
     weightsDims(BaseLayer::makeWeightsDims(in, out)),
     weights(weightsDims),
     bias(out),
-    dweights(weightsDims),
-    dweightsTemp(weightsDims),
-    dbias(out),
     hold(out)
-{}
+{
+    dweight = new BaseLearner(&weights, 0.1);
+    dbias = new BaseLearner(&bias, 0.1);
+}
 
-perceptron::~perceptron(){}
+perceptron::~perceptron(){
+    delete dweight;
+    delete dbias;
+}
 
 void perceptron::forward(tensor& output, const tensor& input){
     input.addAndMult(output, weights, bias);
@@ -27,22 +30,18 @@ void perceptron::backward(tensor& dInput, const tensor& input, const tensor& dOu
     dOutput.sMult(hold, output);
 
     // get dweights
-    input.fastDeMultL(dweightsTemp, dOutput);
-    dweights.add(dweights, dweightsTemp);
+    dweight->backprop(input, hold);
 
     // get dbias
-    dbias.add(dbias, dOutput);
+    dbias->backprop(hold);
 
     // get dinput and dInternal carry
-    dOutput.fastDeMultR(dInput, weights);
+    hold.fastDeMultR(dInput, weights);
 }
 
-void perceptron::learn(float alpha){
-    dbias.sMult(dbias, -alpha);
-    bias.add(bias, dbias);
-
-    dweights.sMult(dweights, -alpha);
-    weights.add(weights, dweights);
+void perceptron::learn(){
+    dweight->learn();
+    dbias->learn();
 }
 
 std::string perceptron::getLayerType(){return "Perceptron";}

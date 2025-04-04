@@ -74,7 +74,7 @@ TEST_F(RecursiveLayerTest, learn) {
     int m = 150;
     int k = 784;
     BaseLayer* b = new recursive({n,k}, {n,m});
-    b->learn(0.4);
+    b->learn();
     delete b;
 }
 

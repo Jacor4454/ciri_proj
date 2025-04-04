@@ -60,9 +60,8 @@ void learningNetwork::forward(const std::vector<tensor>& input){
     for(int it = 0; it < input.size(); it++){
         tss[it+1][0].cpy(input[it]);
 
-        for(int i = 0; i < N; i++){
+        for(int i = 0; i < N; i++)
             layers[i]->forward(tss[it+1][i+1], tss[it+1][i]);
-        }
 
         // do some result handling
     }
@@ -83,12 +82,13 @@ void learningNetwork::backward(const std::vector<tensor>& correct){
         // differentiate the top
         tss[it][N].gradient(invts[N], correct[it], errors::MSE);
 
-        for(int i = N-1; i >= 0; i--){
+        for(int i = N-1; i >= 0; i--)
             layers[i]->backward(invts[i], tss[it+1][i], invts[i+1], tss[it][i+1], tss[it+1][i+1]);
-        }
     }
-
+    
     // learn all layers
+    for(int i = 0; i < N; i++)
+        layers[i]->learn();
 }
 
 

@@ -7,15 +7,18 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
     bias(out),
     rWeights(hweightsDims),
     prev(out),
-    dInt(out),
-    dbias(out),
-    dweights(weightsDims),
-    dweightsTemp(weightsDims),
-    dRWeights(hweightsDims),
-    dRWeightsTemp(hweightsDims)
-{}
+    dInt(out)
+{
+    dweight = new BaseLearner(&weights, 0.1);
+    drweight = new BaseLearner(&rWeights, 0.1);
+    dbias = new BaseLearner(&bias, 0.1);
+}
 
-recursive::~recursive(){}
+recursive::~recursive(){
+    delete dweight;
+    delete drweight;
+    delete dbias;
+}
 
 void recursive::forward(tensor& output, const tensor& input){
     input.addAndMult(output, weights, bias);
@@ -35,30 +38,23 @@ void recursive::backward(tensor& dInput, const tensor& input, const tensor& dOut
     dInt.sMult(dInt, output);
 
     // get dweights
-    input.fastDeMultL(dweightsTemp, dInt);
-    dweights.add(dweights, dweightsTemp);
+    dweight->backprop(input, dInt);
 
     // get dbias
-    dbias.add(dbias, dInt);
+    dbias->backprop(dInt);
 
     // get drweigths
-    prevoutput.fastDeMultL(dRWeightsTemp, dInt);
-    dRWeights.add(dRWeights, dRWeightsTemp);
+    drweight->backprop(prevoutput, dInt);
 
     // get dinput and dInternal carry
     dInt.fastDeMultR(dInput, weights);
     dInt.fastDeMultR(dInt, rWeights);
 }
 
-void recursive::learn(float alpha){
-    dbias.sMult(dbias, -alpha);
-    bias.add(bias, dbias);
-
-    dweights.sMult(dweights, -alpha);
-    weights.add(weights, dweights);
-
-    dRWeights.sMult(dRWeights, -alpha);
-    rWeights.add(rWeights, dRWeights);
+void recursive::learn(){
+    dweight->learn();
+    drweight->learn();
+    dbias->learn();
 }
 
 std::string recursive::getLayerType(){return "Recersive";}

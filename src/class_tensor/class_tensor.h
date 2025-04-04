@@ -90,9 +90,11 @@ class tensor{
     // hybrids
     void addAndMult(tensor&, const tensor&, const tensor&) const;
     void multAndInc(tensor&, const tensor&) const;
+    void alphaSub(tensor&, float) const;
 
     // complex multipliers
     void fastDeMultL(tensor&, const tensor&) const;
+    void fastDeMultLInc(tensor&, const tensor&) const;
     void fastDeMultR(tensor&, const tensor&) const;
 
     //operators
