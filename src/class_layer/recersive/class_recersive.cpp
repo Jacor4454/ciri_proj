@@ -9,10 +9,16 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
     prev(out),
     dInt(out)
 {
-    dweight = new BaseLearner(&weights, 0.1);
-    drweight = new BaseLearner(&rWeights, 0.1);
-    dbias = new BaseLearner(&bias, 0.1);
+    dweight = new BaseLearner(&weights, 0.02);
+    drweight = new BaseLearner(&rWeights, 0.02);
+    dbias = new BaseLearner(&bias, 0.02);
+    weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weights.getN()), inverse_sqrt(weights.getN()));
+    rWeights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(rWeights.getN()), inverse_sqrt(rWeights.getN()));
+    bias.sMult(bias, 0);
+    acc = activations::ReLU;
 }
+
+void recursive::setAcc(activations::accTypes a){acc = a;}
 
 recursive::~recursive(){
     delete dweight;
@@ -26,12 +32,12 @@ void recursive::forward(tensor& output, const tensor& input){
     
     prev.cpy(output);
     
-    output.activate(activations::ReLU);
+    output.activate(acc);
 }
 
 void recursive::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& prevoutput, tensor& output){
     // deactivate output
-    output.deactivate(activations::ReLU);
+    output.deactivate(acc);
 
     // smultiply deactivated output, dOutput and dInt
     dInt.sMult(dInt, dOutput);
@@ -55,6 +61,14 @@ void recursive::learn(){
     dweight->learn();
     drweight->learn();
     dbias->learn();
+}
+
+void recursive::clear(){
+    dweight->clear();
+    drweight->clear();
+    dbias->clear();
+    prev.sMult(prev, 0.0);// for now
+    dInt.sMult(dInt, 0.0);// for now
 }
 
 std::string recursive::getLayerType(){return "Recersive";}

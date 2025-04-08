@@ -12,6 +12,7 @@ project: class_tensor.o main.o
 
 test: test.o class_tensor.o class_layer.o class_learners.o class_perceptron.o class_recersive.o activators.o gradients.o class_network.o class_learning_network.o
 	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o b $(OBJDIR)test.o $(OBJDIR)activators.o $(OBJDIR)class_learners.o $(OBJDIR)gradients.o $(OBJDIR)class_tensor.o $(OBJDIR)class_layer.o $(OBJDIR)class_network.o $(OBJDIR)class_learning_network.o $(OBJDIR)class_perceptron.o $(OBJDIR)class_recersive.o /usr/lib/libgtest.a
+	./b
 
 class_learners.o:
 	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_learners.o $(LAYERDIR)learners/class_learner.cpp

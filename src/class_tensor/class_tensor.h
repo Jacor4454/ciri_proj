@@ -59,6 +59,8 @@ class tensor{
     ~tensor();
     void cpy(const tensor&);
     void cpy(const std::vector<float>&);
+    void normalRnd(std::default_random_engine&, float);
+    void xavierRnd(std::default_random_engine&, float, float);
 
     // static initialiser
     static void threads_initaliseThreads();

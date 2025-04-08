@@ -19,6 +19,8 @@ class learningNetwork {
     // ~learningNetwork();
     void forward(const std::vector<tensor>& input);
     void backward(const std::vector<tensor>& correct);
+
+    void learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct);
 };
 
 

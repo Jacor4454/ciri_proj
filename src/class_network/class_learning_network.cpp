@@ -17,14 +17,19 @@ learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> l
     for(int i = 0; i < N-1; i++){
         dimss[i+1] = ls[i].getDims();
         layers[i] = network::getLayer(ls[i].getLyrTyp(), dimss[i], dimss[i+1]);
+        layers[i]->setAcc(ls[i].getAccTyp());
     }
     dimss[N] = o.getDims();
     layers[N-1] = network::getLayer(o.getLyrTyp(), dimss[N-1], dimss[N]);
+    layers[N-1]->setAcc(o.getAccTyp());
 
     // make tensors for passing
     for(auto& v : dimss)
         for(int i = 0; i < currMaxItt+1; i++)
             tss[i].push_back(tensor(v));
+    
+    for(int i = 0; i < N+1; i++)
+        tss[0][i].sMult(tss[0][i], 0);
 
     // make tensors for learning
     invts.reserve(N+1);
@@ -57,6 +62,9 @@ void learningNetwork::forward(const std::vector<tensor>& input){
     if(itts > currMaxItt)
         resizeItt(itts);
 
+    for(int i = 0; i < N; i++)
+        layers[i]->clear();
+
     for(int it = 0; it < input.size(); it++){
         tss[it+1][0].cpy(input[it]);
 
@@ -78,9 +86,11 @@ void learningNetwork::backward(const std::vector<tensor>& correct){
     // zero layers carry (if applicable)
 
     // itterated backward through time
+    float output = 0;
     for(int it = itts-1; it >= 0; it--){
         // differentiate the top
-        tss[it][N].gradient(invts[N], correct[it], errors::MSE);
+        output += tss[it+1][N].loss(correct[it], errors::MSE);
+        tss[it+1][N].gradient(invts[N], correct[it], errors::MSE);
 
         for(int i = N-1; i >= 0; i--)
             layers[i]->backward(invts[i], tss[it+1][i], invts[i+1], tss[it][i+1], tss[it+1][i+1]);
@@ -91,6 +101,16 @@ void learningNetwork::backward(const std::vector<tensor>& correct){
         layers[i]->learn();
 }
 
+void learningNetwork::learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct){
+    if(input.size() != correct.size())
+        throw std::runtime_error("input and lable have different ammounts of data");
 
+    int n = input.size();
+
+    for(int i = 0; i < n; i++){
+        forward(input[i]);
+        backward(correct[i]);
+    }
+}
 
 

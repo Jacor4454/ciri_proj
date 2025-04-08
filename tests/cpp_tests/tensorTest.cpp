@@ -336,7 +336,6 @@ TEST_F(TensorTest, TensorDeMultLInc) {
     for(int i = 0; i < 6; i++)
         myTensor4[i] = i+1;
     myTensor1.fastDeMultLInc(myTensor4, myTensor2);
-    std::cout << myTensor3 << myTensor4;
     EXPECT_TRUE(myTensor4 == myTensor3);
 }
 TEST_F(TensorTest, TensorDeMultLNInc) {

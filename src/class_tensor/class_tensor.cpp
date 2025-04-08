@@ -141,7 +141,16 @@ void tensor::cpy(const std::vector<float>& v) {
     for(int i = 0; i < N; i++)
         contents[i] = v[i];
 }
-
+void tensor::normalRnd(std::default_random_engine& gen, float SD){
+    std::normal_distribution<float> distribution(0.0, SD);
+    for(int i = 0; i < N; i++)
+        contents[i] = distribution(gen);
+}
+void tensor::xavierRnd(std::default_random_engine& gen, float min, float max){
+    std::normal_distribution<float> distribution(min, max);
+    for(int i = 0; i < N; i++)
+        contents[i] = distribution(gen);
+}
 
 void tensor::threads_initaliseThreads(){threadManager::initaliseThreads();}
 void tensor::threads_killThreads(){threadManager::killThreads();}

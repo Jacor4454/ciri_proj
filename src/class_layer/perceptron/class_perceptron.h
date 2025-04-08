@@ -11,14 +11,17 @@ class perceptron : public BaseLayer{
     BaseLearner* dweight;
     BaseLearner* dbias;
     tensor hold;
+    activations::accTypes acc;
 
     public:
     perceptron(std::vector<int>, std::vector<int>);
+    void setAcc(activations::accTypes);
     virtual ~perceptron();
 
     void forward(tensor&, const tensor&);
     void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
     void learn();
+    void clear();
 
     std::string getLayerType();
 };

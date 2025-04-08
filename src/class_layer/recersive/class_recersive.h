@@ -15,15 +15,18 @@ class recursive : public BaseLayer{
     BaseLearner* dbias;
     tensor dInt;
     tensor prev;
+    activations::accTypes acc;
     
 
     public:
     recursive(std::vector<int>, std::vector<int>);
+    void setAcc(activations::accTypes);
     virtual ~recursive();
 
     void forward(tensor&, const tensor&);
     void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
     void learn();
+    void clear();
 
     std::string getLayerType();
 };
