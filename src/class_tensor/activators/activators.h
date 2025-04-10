@@ -15,6 +15,6 @@ namespace activations {
 }
 
 void Activate(float*, long, activations::accTypes);
-void DeActivate(float*, long, activations::accTypes);
+void DeActivate(float*, float*, long, activations::accTypes);
 
 #endif

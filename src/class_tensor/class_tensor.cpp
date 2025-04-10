@@ -167,8 +167,11 @@ float* tensor::getContents() const{return contents;}
 void tensor::activate(activations::accTypes a){
     Activate(contents, N, a);
 }
-void tensor::deactivate(activations::accTypes a){
-    DeActivate(contents, N, a);
+void tensor::deactivate(tensor& output, activations::accTypes a) const{
+    if(dims != output.getDims())
+        throw std::runtime_error("deactivate dims do not match");
+
+    DeActivate(contents, output.getContents(), N, a);
 }
 
 // loss

@@ -25,7 +25,7 @@ void BaseLayer::setAcc(activations::accTypes a){throw std::runtime_error("cannot
 BaseLayer::~BaseLayer(){}
 
 void BaseLayer::forward(tensor& output, const tensor& input){throw std::runtime_error("cannot forward base layer");}
-void BaseLayer::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& output, tensor&){throw std::runtime_error("cannot backward base layer");}
+void BaseLayer::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& output, const tensor&){throw std::runtime_error("cannot backward base layer");}
 void BaseLayer::learn(){throw std::runtime_error("cannot learn base layer");}
 void BaseLayer::clear(){throw std::runtime_error("cannot clear base layer");}
 

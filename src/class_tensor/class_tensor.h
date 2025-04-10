@@ -76,7 +76,7 @@ class tensor{
 
     // accs
     void activate(activations::accTypes);
-    void deactivate(activations::accTypes);
+    void deactivate(tensor& output, activations::accTypes) const;
 
     // loss
     float loss(const tensor&, errors::errTypes);

@@ -7,9 +7,9 @@ void ReLU(float* data, long N){
         data[i] = data[i] < 0 ? 0 : data[i];
     }
 }
-void deReLU(float* data, long N){
+void deReLU(float* output, float* data, long N){
     for(int i = 0; i < N; i++){
-        data[i] = data[i] > 0 ? 1 : 0;
+        output[i] = data[i] > 0 ? 1 : 0;
     }
 }
 void Sigmoid(float* data, long N){
@@ -17,9 +17,9 @@ void Sigmoid(float* data, long N){
         data[i] = (1/(1+(exp(-1*data[i]))));
     }
 }
-void deSigmoid(float* data, long N){
+void deSigmoid(float* output, float* data, long N){
     for(int i = 0; i < N; i++){
-        data[i] = data[i] * (1-data[i]);
+        output[i] = data[i] * (1-data[i]);
     }
 }
 void Tanh(float* data, long N){
@@ -27,9 +27,9 @@ void Tanh(float* data, long N){
         data[i] = tanh(data[i]);
     }
 }
-void deTanh(float* data, long N){
+void deTanh(float* output, float* data, long N){
     for(int i = 0; i < N; i++){
-        data[i] = 1-(data[i]*data[i]);
+        output[i] = 1-(data[i]*data[i]);
     }
 }
 void Softmax(float* data, long N){
@@ -44,9 +44,9 @@ void Softmax(float* data, long N){
         data[i] = exp(data[i])/total;
     }
 }
-void deSoftmax(float* data, long N){
+void deSoftmax(float* output, float* data, long N){
     for(int i = 0; i < N; i++){
-        data[i] = data[i]*(1-data[i]);
+        output[i] = data[i]*(1-data[i]);
     }
 }
 
@@ -56,9 +56,9 @@ void Leaky_relu(float* data, long N){
         data[i] = (data[i] > 0) ? data[i] : data[i]*leakyness;
     }
 }
-void deLeaky_relu(float* data, long N){
+void deLeaky_relu(float* output, float* data, long N){
     for(int i = 0; i < N; i++){
-        data[i] = (data[i] > 0) ? 1.0 : leakyness;
+        output[i] = (data[i] > 0) ? 1.0 : leakyness;
     }
 }
 
@@ -84,22 +84,22 @@ void Activate(float* data, long N, activations::accTypes a){
     }
 }
 
-void DeActivate(float* data, long N, activations::accTypes a){
+void DeActivate(float* data, float* output, long N, activations::accTypes a){
     switch(a){
         case activations::ReLU:
-            deReLU(data, N);
+            deReLU(output, data, N);
             break;
         case activations::Sigmoid:
-            deSigmoid(data, N);
+            deSigmoid(output, data, N);
             break;
         case activations::tanh:
-            deTanh(data, N);
+            deTanh(output, data, N);
             break;
         case activations::softmax:
-            deSoftmax(data, N);
+            deSoftmax(output, data, N);
             break;
         case activations::leakyReLU:
-            deLeaky_relu(data, N);
+            deLeaky_relu(output, data, N);
             break;
         default:
             throw std::runtime_error("deactivation type not supported yet");

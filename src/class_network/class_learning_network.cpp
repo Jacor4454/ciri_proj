@@ -68,13 +68,20 @@ void learningNetwork::forward(const std::vector<tensor>& input){
     for(int it = 0; it < input.size(); it++){
         tss[it+1][0].cpy(input[it]);
 
-        for(int i = 0; i < N; i++)
+        for(int i = 0; i < N; i++){
             layers[i]->forward(tss[it+1][i+1], tss[it+1][i]);
-
-        // do some result handling
+        }
     }
 }
 
+std::vector<tensor> learningNetwork::getOutput(){
+    std::vector<tensor> output(lastItt, tensor({}));
+
+    for(int i = 0; i < lastItt; i++)
+        output[i].cpy(tss[i+1][N]);
+
+    return output;
+}
 
 void learningNetwork::backward(const std::vector<tensor>& correct){
     int itts = correct.size();
@@ -86,15 +93,16 @@ void learningNetwork::backward(const std::vector<tensor>& correct){
     // zero layers carry (if applicable)
 
     // itterated backward through time
-    float output = 0;
+    float loss = 0;
     for(int it = itts-1; it >= 0; it--){
         // differentiate the top
-        output += tss[it+1][N].loss(correct[it], errors::MSE);
+        loss += tss[it+1][N].loss(correct[it], errors::MSE);
         tss[it+1][N].gradient(invts[N], correct[it], errors::MSE);
 
         for(int i = N-1; i >= 0; i--)
             layers[i]->backward(invts[i], tss[it+1][i], invts[i+1], tss[it][i+1], tss[it+1][i+1]);
     }
+    // std::cout << "loss: " << loss << "\n";
     
     // learn all layers
     for(int i = 0; i < N; i++)
@@ -107,9 +115,23 @@ void learningNetwork::learn(const std::vector<std::vector<tensor>>& input, const
 
     int n = input.size();
 
+    int per = 0;
     for(int i = 0; i < n; i++){
         forward(input[i]);
         backward(correct[i]);
+        
+        bool corr = true;
+        std::vector<tensor> out = getOutput();
+        for(int j = 0; j < out.size(); j++)
+            if(round(out[j][0]) != correct[i][j][0])
+                corr = false;
+
+        if(corr)
+            per++;
+        if(i % 100 == 99){
+            std::cout << "acc: " << per << "%\n";
+            per = 0;
+        }
     }
 }
 

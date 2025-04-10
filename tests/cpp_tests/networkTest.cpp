@@ -77,20 +77,45 @@ TEST_F(NetworkTest, LearningNetworkLearn) {
     myNetwork.learn({{myTensor1a, myTensor1b}}, {{myTensor2a, myTensor2b}});
 }
 
-#ifdef FULL_LEARN
-TEST_F(NetworkTest, LearningNetworkFullLearn) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::Sigmoid)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
+TEST_F(NetworkTest, LearningNetworkOutput) {
+    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
     
-    int n = 2000;
     int k = 8;
 
-    std::vector<std::vector<tensor>> input(n, std::vector<tensor>(8, tensor({1, 2})));
-    std::vector<std::vector<tensor>> correct(n, std::vector<tensor>(8, tensor({1, 1})));
+    std::vector<std::vector<tensor>> input(1, std::vector<tensor>(8, tensor({1, 2})));
+    std::vector<std::vector<tensor>> correct(1, std::vector<tensor>(8, tensor({1, 1})));
+
+    int val = rand() & ((1<<(k-1))-1);
+    int val2 = rand() & ((1<<(k-1))-1);
+    int valc = val+val2;
+    for(int j = 0; j < k; j++){
+        input[0][j][0] = val & 1;
+        input[0][j][1] = val2 & 1;
+        correct[0][j][0] = valc & 1;
+
+        val >>= 1;
+        val2 >>= 1;
+        valc >>= 1;
+    }
+
+    myNetwork.learn(input, correct);
+}
+
+#ifdef FULL_LEARN
+TEST_F(NetworkTest, LearningNetworkFullLearn) {
+    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,10}, layers::recursive, activations::Sigmoid)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
+    
+    int n = 10000;
+    int k = 8;
+
+    std::vector<std::vector<tensor>> input(n, std::vector<tensor>(k, tensor({1, 2})));
+    std::vector<std::vector<tensor>> correct(n, std::vector<tensor>(k, tensor({1, 1})));
 
     for(int i = 0; i < n; i++){
         int val = rand() & ((1<<(k-1))-1);
         int val2 = rand() & ((1<<(k-1))-1);
         int valc = val+val2;
+        
         for(int j = 0; j < k; j++){
             input[i][j][0] = val & 1;
             input[i][j][1] = val2 & 1;

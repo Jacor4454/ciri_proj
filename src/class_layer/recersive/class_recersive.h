@@ -13,6 +13,7 @@ class recursive : public BaseLayer{
     BaseLearner* dweight;
     BaseLearner* drweight;
     BaseLearner* dbias;
+    tensor hold;
     tensor dInt;
     tensor prev;
     activations::accTypes acc;
@@ -24,7 +25,7 @@ class recursive : public BaseLayer{
     virtual ~recursive();
 
     void forward(tensor&, const tensor&);
-    void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
+    void backward(tensor&, const tensor&, const tensor&, const tensor&,  const tensor&);
     void learn();
     void clear();
 

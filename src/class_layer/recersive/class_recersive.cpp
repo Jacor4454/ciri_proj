@@ -7,11 +7,12 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
     bias(out),
     rWeights(hweightsDims),
     prev(out),
-    dInt(out)
+    dInt(out),
+    hold(out)
 {
-    dweight = new BaseLearner(&weights, 0.02);
-    drweight = new BaseLearner(&rWeights, 0.02);
-    dbias = new BaseLearner(&bias, 0.02);
+    dweight = new BaseLearner(&weights, 0.1);
+    drweight = new BaseLearner(&rWeights, 0.1);
+    dbias = new BaseLearner(&bias, 0.1);
     weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weights.getN()), inverse_sqrt(weights.getN()));
     rWeights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(rWeights.getN()), inverse_sqrt(rWeights.getN()));
     bias.sMult(bias, 0);
@@ -27,34 +28,39 @@ recursive::~recursive(){
 }
 
 void recursive::forward(tensor& output, const tensor& input){
+    // std::cout << "\nrecForward\n";
     input.addAndMult(output, weights, bias);
+    // std::cout << weights << bias << input << output;
     prev.multAndInc(output, rWeights);
-    
-    prev.cpy(output);
+    // std::cout << prev << rWeights << output;
     
     output.activate(acc);
+
+    prev.cpy(output);
+    // std::cout << output;
+    // std::cout << "recForwardEnd\n\n";
 }
 
-void recursive::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& prevoutput, tensor& output){
+void recursive::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& prevoutput, const tensor& output){
     // deactivate output
-    output.deactivate(acc);
+    output.deactivate(hold, acc);
 
     // smultiply deactivated output, dOutput and dInt
-    dInt.sMult(dInt, dOutput);
-    dInt.sMult(dInt, output);
+    dInt.add(dInt, dOutput);
+    hold.sMult(hold, dInt);
 
     // get dweights
-    dweight->backprop(input, dInt);
+    dweight->backprop(input, hold);
 
     // get dbias
-    dbias->backprop(dInt);
+    dbias->backprop(hold);
 
     // get drweigths
-    drweight->backprop(prevoutput, dInt);
+    drweight->backprop(prevoutput, hold);
 
     // get dinput and dInternal carry
-    dInt.fastDeMultR(dInput, weights);
-    dInt.fastDeMultR(dInt, rWeights);
+    hold.fastDeMultR(dInput, weights);
+    hold.fastDeMultR(dInt, rWeights);
 }
 
 void recursive::learn(){

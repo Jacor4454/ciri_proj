@@ -6,8 +6,8 @@ perceptron::perceptron(std::vector<int> in, std::vector<int> out):
     bias(out),
     hold(out)
 {
-    dweight = new BaseLearner(&weights, 0.02);
-    dbias = new BaseLearner(&bias, 0.02);
+    dweight = new BaseLearner(&weights, 0.1);
+    dbias = new BaseLearner(&bias, 0.1);
     weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weights.getN()), inverse_sqrt(weights.getN()));
     bias.sMult(bias, 0);
     acc = activations::ReLU;
@@ -26,12 +26,12 @@ void perceptron::forward(tensor& output, const tensor& input){
     output.activate(acc);
 }
 
-void perceptron::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& IGNORE, tensor& output){
+void perceptron::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& IGNORE, const tensor& output){
     // deactivate output
-    output.deactivate(acc);
+    output.deactivate(hold, acc);
     
     // smultiply deactivated output, dOutput and dInt
-    dOutput.sMult(hold, output);
+    hold.sMult(hold, dOutput);
 
     // get dweights
     dweight->backprop(input, hold);

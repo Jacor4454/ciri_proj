@@ -19,7 +19,7 @@ class perceptron : public BaseLayer{
     virtual ~perceptron();
 
     void forward(tensor&, const tensor&);
-    void backward(tensor&, const tensor&, const tensor&, const tensor&, tensor&);
+    void backward(tensor&, const tensor&, const tensor&, const tensor&, const tensor&);
     void learn();
     void clear();
 

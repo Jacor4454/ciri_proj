@@ -18,6 +18,7 @@ class learningNetwork {
     learningNetwork(inputDefObject, std::vector<layerDefObject>, outputDefObject, int);
     // ~learningNetwork();
     void forward(const std::vector<tensor>& input);
+    std::vector<tensor> getOutput();
     void backward(const std::vector<tensor>& correct);
 
     void learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct);
