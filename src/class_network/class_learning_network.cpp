@@ -102,7 +102,6 @@ void learningNetwork::backward(const std::vector<tensor>& correct){
         for(int i = N-1; i >= 0; i--)
             layers[i]->backward(invts[i], tss[it+1][i], invts[i+1], tss[it][i+1], tss[it+1][i+1]);
     }
-    // std::cout << "loss: " << loss << "\n";
     
     // learn all layers
     for(int i = 0; i < N; i++)
@@ -119,20 +118,6 @@ void learningNetwork::learn(const std::vector<std::vector<tensor>>& input, const
     for(int i = 0; i < n; i++){
         forward(input[i]);
         backward(correct[i]);
-        
-        bool corr = true;
-        std::vector<tensor> out = getOutput();
-        for(int j = 0; j < out.size(); j++)
-            if(round(out[j][0]) != correct[i][j][0])
-                corr = false;
-
-        if(corr)
-            per++;
-        if(i % 100 == 99){
-            std::cout << "acc: " << per << "%\n";
-            per = 0;
-        }
     }
 }
-
 
