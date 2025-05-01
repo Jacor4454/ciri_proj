@@ -2,8 +2,6 @@
 
 #include "../../src/class_tensor/class_tensor.h"
 
-// #define TENSORBENCHMARK
-
 namespace my {
 namespace project {
 namespace {
@@ -627,7 +625,7 @@ TEST_F(TensorTest, TensorAlpha) {
 }
 
 
-#ifdef TENSORBENCHMARK
+#ifdef TENSOR_BENCHMARK
 void benchmarkHelper(){
     int n = 1;
     int m = 150;

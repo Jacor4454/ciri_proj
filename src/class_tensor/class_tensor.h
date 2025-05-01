@@ -61,6 +61,7 @@ class tensor{
     void cpy(const std::vector<float>&);
     void normalRnd(std::default_random_engine&, float);
     void xavierRnd(std::default_random_engine&, float, float);
+    void set(const float);
 
     // static initialiser
     static void threads_initaliseThreads();
@@ -108,6 +109,9 @@ class tensor{
     float& operator[](const int&);
     const float& operator[](const int&) const;
     bool operator==(const tensor&);
+
+    // debug
+    bool nantest() const;
 };
 
 std::ostream& operator<<(std::ostream&, const tensor&);

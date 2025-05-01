@@ -9,7 +9,7 @@ perceptron::perceptron(std::vector<int> in, std::vector<int> out):
     dweight = new BaseLearner(&weights, 0.1);
     dbias = new BaseLearner(&bias, 0.1);
     weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weights.getN()), inverse_sqrt(weights.getN()));
-    bias.sMult(bias, 0);
+    bias.set(0.0);
     acc = activations::ReLU;
 }
 

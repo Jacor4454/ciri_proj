@@ -151,6 +151,10 @@ void tensor::xavierRnd(std::default_random_engine& gen, float min, float max){
     for(int i = 0; i < N; i++)
         contents[i] = distribution(gen);
 }
+void tensor::set(const float f){
+    for(int i = 0; i < N; i++)
+        contents[i] = f;
+}
 
 void tensor::threads_initaliseThreads(){threadManager::initaliseThreads();}
 void tensor::threads_killThreads(){threadManager::killThreads();}
@@ -639,6 +643,14 @@ bool tensor::operator==(const tensor& t){
             return false;
     
     return true;
+}
+
+// debug
+bool tensor::nantest() const{
+    for(int i = 0; i < N; i++)
+        if(contents[i] != contents[i])
+            return true;
+    return false;
 }
 
 // print

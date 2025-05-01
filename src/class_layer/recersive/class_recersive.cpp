@@ -15,7 +15,7 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
     dbias = new BaseLearner(&bias, 0.1);
     weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weights.getN()), inverse_sqrt(weights.getN()));
     rWeights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(rWeights.getN()), inverse_sqrt(rWeights.getN()));
-    bias.sMult(bias, 0);
+    bias.set(0.0);
     acc = activations::ReLU;
 }
 
@@ -73,8 +73,8 @@ void recursive::clear(){
     dweight->clear();
     drweight->clear();
     dbias->clear();
-    prev.sMult(prev, 0.0);// for now
-    dInt.sMult(dInt, 0.0);// for now
+    prev.set(0.0);
+    dInt.set(0.0);
 }
 
 std::string recursive::getLayerType(){return "Recersive";}

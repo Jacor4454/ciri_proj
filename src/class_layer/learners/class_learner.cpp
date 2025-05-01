@@ -20,6 +20,6 @@ void BaseLearner::learn(){
 }
 
 void BaseLearner::clear(){
-    differ.sMult(differ, 0.0);// for now
+    differ.set(0.0);
 }
 

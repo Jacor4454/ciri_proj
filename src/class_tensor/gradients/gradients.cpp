@@ -11,6 +11,8 @@ void squaredDiff(float* output, float* data, float* correct, long N){
         output[i] = -2*(correct[i] - data[i]);
 }
 
+#include <iostream>// remove
+
 float meanSquaredError(float* data, float* correct, long N){
     float output = 0;
     for(int i = 0; i < N; i++)

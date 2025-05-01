@@ -1,6 +1,7 @@
 #ifndef CLASS_LEARNING_NETWORK_H
 #define CLASS_LEARNING_NETWORK_H
 
+#include "../rest/src/http_server/http_server.h"
 #include "class_network.h"
 
 class learningNetwork {
@@ -12,11 +13,16 @@ class learningNetwork {
     std::vector<std::vector<tensor>> tss;
     std::vector<tensor> invts;
 
+    // rest server
+    HTTPServer myServ;
+    std::thread t;
+    bool keepServerAlive;
+
     void resizeItt(int newCurr);
 
     public:
-    learningNetwork(inputDefObject, std::vector<layerDefObject>, outputDefObject, int);
-    // ~learningNetwork();
+    learningNetwork(inputDefObject, std::vector<layerDefObject>, outputDefObject, int, int);
+    ~learningNetwork();
     void forward(const std::vector<tensor>& input);
     std::vector<tensor> getOutput();
     void backward(const std::vector<tensor>& correct);

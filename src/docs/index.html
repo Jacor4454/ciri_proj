@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <link rel="stylesheet" href="test.css">
+    </head>
+    <body>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+        </script>
+
+        <h1>live training data</h1>
+        
+        <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+        
+        <script>
+
+            myChart = new Chart("myChart", {
+                type: "line",
+                data: {
+                    labels: [],
+                    datasets: [{
+                        fill: false,
+                        lineTension: 0,
+                        backgroundColor: "rgba(0,0,255,1.0)",
+                        borderColor: "rgba(0,0,255,0.1)",
+                        data: []
+                    }]
+                },
+                options:{
+                    legend: {display: false},
+                    scales: {
+                        yAxes: [{ticks: {min: 0, max:100}}],
+                    }
+                }
+            });
+
+            function addData(labels, newData) {
+                myChart.data.labels = labels;
+                myChart.data.datasets.forEach((dataset) => {
+                    dataset.data = newData;
+                });
+                myChart.update();
+            }
+
+            function fetchJSONData() {
+                fetch('data.json')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();  
+                    })
+                    .then(data => {
+                        addData([...Array(data.length).keys()], data.data);
+                    })  
+                    .catch(error => console.error('Failed to fetch data:', error)); 
+            }
+            fetchJSONData();
+            setInterval(() => {
+                fetchJSONData();
+            }, 1500);
+        </script>
+    </body>
+</html>

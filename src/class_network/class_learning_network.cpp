@@ -1,7 +1,20 @@
 #include "class_learning_network.h"
 
 
-learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> ls, outputDefObject o, int maxItt = 1){
+// void exiting(int i){
+//     log::add("program terminating");
+//     log::close();
+//     exit(0);
+// }
+
+void handler(bool* keepAlive, HTTPServer* s){
+    while(*keepAlive)
+        (*s).handleCon();
+}
+
+learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> ls, outputDefObject o, int maxItt = 1, int port = 0):
+myServ("0.0.0.0", 1231)
+{
     // get network size and expand/reserve
     N = ls.size()+1;
     currMaxItt = maxItt;
@@ -29,12 +42,31 @@ learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> l
             tss[i].push_back(tensor(v));
     
     for(int i = 0; i < N+1; i++)
-        tss[0][i].sMult(tss[0][i], 0);
+        tss[0][i].set(0.0);
 
     // make tensors for learning
     invts.reserve(N+1);
     for(auto& v : dimss)
         invts.push_back(tensor(v));
+    
+    //^C
+    // signal(SIGINT, exiting);
+    // //abort()
+    // signal(SIGABRT, exiting);
+    // //sent by "kill" command
+    // signal(SIGTERM, exiting);
+    // //^Z
+    // signal(SIGTSTP, exiting);
+
+    keepServerAlive = true;
+    t = std::thread(handler, &keepServerAlive, &myServ);
+}
+
+learningNetwork::~learningNetwork(){
+    keepServerAlive = false;
+    t.join();
+
+    log::add("program finishing");
 }
 
 void learningNetwork::resizeItt(int newCurr){
@@ -102,10 +134,29 @@ void learningNetwork::backward(const std::vector<tensor>& correct){
         for(int i = N-1; i >= 0; i--)
             layers[i]->backward(invts[i], tss[it+1][i], invts[i+1], tss[it][i+1], tss[it+1][i+1]);
     }
+    if(loss != loss)
+        throw std::runtime_error("nan has occured");
     
     // learn all layers
-    for(int i = 0; i < N; i++)
+    for(int i = 0; i < N; i++){
         layers[i]->learn();
+    }
+}
+
+std::string convArrToStr(std::vector<int> data){
+    if(data.size() == 0)
+        return "[]";
+
+    std::stringstream ss;
+    int n = data.size();
+
+    ss << "[";
+    for(int i = 0; i < n-1; i++){
+        ss << data[i] << ",";
+    }
+    ss << data[n-1] << "]";
+
+    return ss.str();
 }
 
 void learningNetwork::learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct){
@@ -113,11 +164,35 @@ void learningNetwork::learn(const std::vector<std::vector<tensor>>& input, const
         throw std::runtime_error("input and lable have different ammounts of data");
 
     int n = input.size();
+    std::vector<int> correctPredictions(n/100, 0);
+
+    // setup restAPI
+    myServ.addAPI("/", new Responce::File("./src/docs/index.html", ".html"), GET);
+    myServ.addAPI("/index.css", new Responce::File("./src/docs/index.css", ".css"), GET);
+    
+    Responce::JSON* json = new Responce::JSON();
+    (*json)["data"] = convArrToStr(correctPredictions);
+    (*json)["length"] = std::to_string((int) n/100);
+    myServ.addAPI("/data.json", json, GET);
 
     int per = 0;
     for(int i = 0; i < n; i++){
         forward(input[i]);
         backward(correct[i]);
+
+        std::vector<tensor> output = getOutput();
+        bool corr = true;
+        for(int k = 0; k < output.size(); k++)
+            for(int j = 0; j < output[k].getN(); j++)
+                if(std::round(output[k][j]) != correct[i][k][j])
+                    corr = false;
+        if(corr)
+            per++;
+        if(i%100 == 99){
+            correctPredictions[i/100] = per;
+            (*json)["data"] = convArrToStr(correctPredictions);
+            per = 0;
+        }
     }
 }
 

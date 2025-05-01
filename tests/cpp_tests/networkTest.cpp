@@ -2,8 +2,6 @@
 
 #include "../../src/class_network/class_learning_network.h"
 
-#define FULL_LEARN
-
 namespace my {
 namespace project {
 namespace {
@@ -18,6 +16,8 @@ class NetworkTest : public testing::Test {
         // You can do set-up work for each test here.
         tensor::threads_setWorkers(4);
         tensor::threads_initaliseThreads();
+
+        log::open("log.txt");
     }
 
     ~NetworkTest() override {
@@ -48,7 +48,7 @@ TEST_F(NetworkTest, MakeNetwork) {
 }
 
 TEST_F(NetworkTest, MakeLearningNetwork) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 2);
+    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 2, 0);
     tensor myTensor1a({1, 784});
     tensor myTensor1b({1, 784});
     myNetwork.forward({myTensor1a, myTensor1b});
@@ -58,7 +58,7 @@ TEST_F(NetworkTest, MakeLearningNetwork) {
 }
 
 TEST_F(NetworkTest, LearningNetworkResize) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
+    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1, 0);
     tensor myTensor1a({1, 784});
     tensor myTensor1b({1, 784});
     myNetwork.forward({myTensor1a, myTensor1b}); // resizes from 1 to 2, should throw no errors
@@ -69,7 +69,7 @@ TEST_F(NetworkTest, LearningNetworkResize) {
 }
 
 TEST_F(NetworkTest, LearningNetworkLearn) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
+    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1, 0);
     tensor myTensor1a({1, 784});
     tensor myTensor1b({1, 784});
     tensor myTensor2a({1, 10});
@@ -78,7 +78,7 @@ TEST_F(NetworkTest, LearningNetworkLearn) {
 }
 
 TEST_F(NetworkTest, LearningNetworkOutput) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
+    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1, 0);
     
     int k = 8;
 
@@ -101,11 +101,11 @@ TEST_F(NetworkTest, LearningNetworkOutput) {
     myNetwork.learn(input, correct);
 }
 
-#ifdef FULL_LEARN
+#ifdef LEARNINGNETWORK_FULLLEARN
 TEST_F(NetworkTest, LearningNetworkFullLearn) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,10}, layers::recursive, activations::Sigmoid)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
+    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,10}, layers::recursive, activations::Sigmoid)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1, 1231);
     
-    int n = 10000;
+    int n = 50000;
     int k = 8;
 
     std::vector<std::vector<tensor>> input(n, std::vector<tensor>(k, tensor({1, 2})));

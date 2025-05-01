@@ -244,10 +244,10 @@ void multNInc_N_skip_shadie(inputs){    // checks are performed off thread
     }
 }
 
-
 // for learning
 void alpha_sub(inputs){
     // checks are performed off thread
-    for(int i = offset; i < n; i+=step)
+    for(int i = offset; i < n; i+=step){
         output[i] -= a[i] * *b;
+    }
 }

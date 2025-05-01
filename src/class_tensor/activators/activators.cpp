@@ -1,5 +1,6 @@
 #include "activators.h"
 
+#include <iostream>// remove
 
 
 void ReLU(float* data, long N){
