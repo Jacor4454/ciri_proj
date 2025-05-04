@@ -1,3 +1,44 @@
-Thu May  1 17:42:32 2025: server initialized on port: 1231
-Thu May  1 17:42:32 2025: listening
-Thu May  1 17:43:07 2025: program finishing
+Sun May  4 17:02:59 2025: server initialized on port: 1231
+Sun May  4 17:02:59 2025: listening
+Sun May  4 17:03:13 2025: contact
+Sun May  4 17:03:13 2025: GET / HTTP/1.1
+Sun May  4 17:03:13 2025: contact
+Sun May  4 17:03:13 2025: GET /test.css HTTP/1.1
+Sun May  4 17:03:13 2025: invalid request
+Sun May  4 17:03:13 2025: contact
+Sun May  4 17:03:13 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:15 2025: contact
+Sun May  4 17:03:15 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:16 2025: contact
+Sun May  4 17:03:16 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:18 2025: contact
+Sun May  4 17:03:18 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:19 2025: contact
+Sun May  4 17:03:19 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:21 2025: contact
+Sun May  4 17:03:21 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:22 2025: contact
+Sun May  4 17:03:22 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:24 2025: contact
+Sun May  4 17:03:24 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:25 2025: contact
+Sun May  4 17:03:25 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:27 2025: contact
+Sun May  4 17:03:27 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:28 2025: contact
+Sun May  4 17:03:28 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:30 2025: contact
+Sun May  4 17:03:30 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:31 2025: contact
+Sun May  4 17:03:31 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:33 2025: contact
+Sun May  4 17:03:33 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:34 2025: contact
+Sun May  4 17:03:34 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:36 2025: contact
+Sun May  4 17:03:36 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:37 2025: contact
+Sun May  4 17:03:37 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:39 2025: contact
+Sun May  4 17:03:39 2025: GET /data.json HTTP/1.1
+Sun May  4 17:03:39 2025: program finishing

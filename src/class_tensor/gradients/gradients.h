@@ -3,7 +3,9 @@
 
 #include <math.h>
 #include <stdexcept>
+#include "../class_tensor.h"
 
+// error lables
 namespace errors {
     typedef enum{
         SE, // Square Error
@@ -11,8 +13,5 @@ namespace errors {
         CE, // Cross-Entropy
     } errTypes;
 }
-
-float Loss(float*, float*, long, errors::errTypes);
-void Gradient(float*, float*, float*, long, errors::errTypes);
 
 #endif

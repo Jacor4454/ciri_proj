@@ -5,6 +5,7 @@ BaseLearner::BaseLearner(tensor* orr, float alpha_):
 {
     original = orr;
     alpha = alpha_;
+    differ.set(0.0);
 }
 
 void BaseLearner::backprop(const tensor& a, const tensor& b){

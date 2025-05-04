@@ -12,12 +12,12 @@ void handler(bool* keepAlive, HTTPServer* s){
         (*s).handleCon();
 }
 
-learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> ls, outputDefObject o, int maxItt = 1, int port = 0):
-myServ("0.0.0.0", 1231)
+learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> ls, outputDefObject o, int maxItt, int port):
+myServ("0.0.0.0", port)
 {
     // get network size and expand/reserve
     N = ls.size()+1;
-    currMaxItt = maxItt;
+    currMaxItt = std::max(maxItt, 1);
     lastItt = 0;
     layers.resize(N, nullptr);
     dimss.resize(N+1);
@@ -49,7 +49,7 @@ myServ("0.0.0.0", 1231)
     for(auto& v : dimss)
         invts.push_back(tensor(v));
     
-    //^C
+    // //^C
     // signal(SIGINT, exiting);
     // //abort()
     // signal(SIGABRT, exiting);
@@ -58,13 +58,20 @@ myServ("0.0.0.0", 1231)
     // //^Z
     // signal(SIGTSTP, exiting);
 
-    keepServerAlive = true;
-    t = std::thread(handler, &keepServerAlive, &myServ);
+    // start webpage thread
+    keepServerAlive = false;
+    if(port >= 0){
+        keepServerAlive = true;
+        t = std::thread(handler, &keepServerAlive, &myServ);
+    }
 }
 
 learningNetwork::~learningNetwork(){
-    keepServerAlive = false;
-    t.join();
+    // stop webpage thread
+    if(keepServerAlive){
+        keepServerAlive = false;
+        t.join();
+    }
 
     log::add("program finishing");
 }

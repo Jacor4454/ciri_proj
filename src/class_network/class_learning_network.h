@@ -21,7 +21,7 @@ class learningNetwork {
     void resizeItt(int newCurr);
 
     public:
-    learningNetwork(inputDefObject, std::vector<layerDefObject>, outputDefObject, int, int);
+    learningNetwork(inputDefObject, std::vector<layerDefObject>, outputDefObject, int = 1, int = -1);
     ~learningNetwork();
     void forward(const std::vector<tensor>& input);
     std::vector<tensor> getOutput();

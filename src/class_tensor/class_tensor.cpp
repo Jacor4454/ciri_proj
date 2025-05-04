@@ -34,53 +34,62 @@ void tensor::threadManager::initaliseThreads(){
     if(created)
         throw std::runtime_error("cannot create threads as they have already been made");
 
+    // set status of the thread handler
     created = true;
     alive = true;
     
+    // create activate signals
     activates = (bool*)malloc(sizeof(bool) * workers);
     for(int i = 0; i < workers; i++)
         activates[i] = false;
     
-    for(int i = 0; i < workers; i++){
+    // allocate/start threads
+    for(int i = 0; i < workers; i++)
         threads.push_back(std::thread(handler, &alive, i, workers, &(activates[i]), &n, &m, &k, &block, &o, &a, &b, &c, &func));
-    }
 }
 void tensor::threadManager::killThreads(){
     if(!created)
         throw std::runtime_error("cannot stop threads as they have already been stopped");
 
+    // signal stop
     created = false;
     alive = false;
 
-    for(int i = 0; i < workers; i++){
+    // join threads, then resize array
+    for(int i = 0; i < workers; i++)
         threads[i].join();
-    }
     threads.resize(0);
 
+    // free activate signals
     free(activates);
 }
 void tensor::threadManager::setDims(long n_, long m_, long k_, long block_){
+    // set the dims of the data to process
     n = n_;
     m = m_;
     k = k_;
     block = block_;
 }
 void tensor::threadManager::setData(float* output_, float* a_, float* b_, float* c_){
+    // set the data arrays to process
     o = output_;
     a = a_;
     b = b_;
     c = c_;
 }
 void tensor::threadManager::setFunc(std::function<void(float*, float*, float*, float*, long, long, long, long, int, int)> func_){
+    // set the function to process
     func = func_;
 }
 void tensor::threadManager::doJob(){
+    // check threads started
     if(!created)
         throw std::runtime_error("workers not started");
-    
+    // check they are alive
     if(!alive)
         throw std::runtime_error("workers dead?!?! this error should be impossible BTW :)");
 
+    // start threads
     for(long i = 0; i < workers; i++)
         activates[i] = true;
 
@@ -98,35 +107,37 @@ void tensor::threadManager::setWorkers(int workers_){
     if(created)
         throw std::runtime_error("cannot change thread count they have been made");
 
+    // set the number of threads to process data
     workers = workers_;
 }
 int tensor::threadManager::getActiveWorkers(){return threads.size();}
 
 
-
+// create tensor
 tensor::tensor(std::vector<int> dims_){
     dims = dims_;
     N = 1;
     for(int n : dims)
         N *= n;
     
+    // allocate insternal data
     contents = (float*)malloc(N * sizeof(float));
-
-    // logging (printing for now)
-    // std::cout << "created tensor of size: " << N << " and dims: [";
-    // for(int n : dims)
-    //     std::cout << n << ", ";
-    // std::cout << "]" << std::endl;
 }
+// create tensor by copying another tensor
 tensor::tensor(const tensor& t){
     dims = t.getDims();
     N = t.getN();
+    
+    // allocate insternal data
     contents = (float*)malloc(N * sizeof(float));
+
+    // copy insternal data
     std::memcpy(contents, t.getContents(), N * sizeof(float));
 }
 tensor::~tensor(){
     free(contents);
 }
+// manual tensor copy
 void tensor::cpy(const tensor& t) {
     dims = t.getDims();
     N = t.getN();
@@ -134,6 +145,7 @@ void tensor::cpy(const tensor& t) {
     contents = (float*)malloc(N * sizeof(float));
     std::memcpy(contents, t.getContents(), N * sizeof(float));
 }
+// copy tensor to tensor
 void tensor::cpy(const std::vector<float>& v) {
     if(v.size() != N)
         throw std::runtime_error("cpy vector wrong size");
@@ -141,6 +153,7 @@ void tensor::cpy(const std::vector<float>& v) {
     for(int i = 0; i < N; i++)
         contents[i] = v[i];
 }
+// randomisers
 void tensor::normalRnd(std::default_random_engine& gen, float SD){
     std::normal_distribution<float> distribution(0.0, SD);
     for(int i = 0; i < N; i++)
@@ -151,11 +164,13 @@ void tensor::xavierRnd(std::default_random_engine& gen, float min, float max){
     for(int i = 0; i < N; i++)
         contents[i] = distribution(gen);
 }
+// manual set data
 void tensor::set(const float f){
     for(int i = 0; i < N; i++)
         contents[i] = f;
 }
 
+// pass throughs
 void tensor::threads_initaliseThreads(){threadManager::initaliseThreads();}
 void tensor::threads_killThreads(){threadManager::killThreads();}
 bool tensor::threads_isActive(){return threadManager::isActive();}
@@ -167,23 +182,108 @@ std::vector<int> tensor::getDims() const{return dims;}
 long tensor::getN() const{return N;}
 float* tensor::getContents() const{return contents;}
 
+#include "activators/activators.cpp"
 // accs
 void tensor::activate(activations::accTypes a){
-    Activate(contents, N, a);
+    // data
+    threadManager::setData(nullptr, contents, nullptr, nullptr);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+
+    // func
+    switch(a){
+        case activations::ReLU:
+            threadManager::setFunc(ReLU);
+            break;
+        case activations::Sigmoid:
+            threadManager::setFunc(Sigmoid);
+            break;
+        case activations::tanh:
+            threadManager::setFunc(Tanh);
+            break;
+        // case activations::softmax:
+        //     Softmax(data, N);
+        //     break;
+        case activations::leakyReLU:
+            threadManager::setFunc(Leaky_relu);
+            break;
+        default:
+            throw std::runtime_error("activation type not supported yet");
+    }
+    
+    //activate threads
+    threadManager::doJob();
 }
 void tensor::deactivate(tensor& output, activations::accTypes a) const{
     if(dims != output.getDims())
         throw std::runtime_error("deactivate dims do not match");
 
-    DeActivate(contents, output.getContents(), N, a);
+    // data
+    threadManager::setData(output.getContents(), contents, nullptr, nullptr);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+
+    // func
+    switch(a){
+        case activations::ReLU:
+            threadManager::setFunc(deReLU);
+            break;
+        case activations::Sigmoid:
+            threadManager::setFunc(deSigmoid);
+            break;
+        case activations::tanh:
+            threadManager::setFunc(deTanh);
+            break;
+        // case activations::softmax:
+        //     deSoftmax(output, data, N);
+        //     break;
+        case activations::leakyReLU:
+            threadManager::setFunc(deLeaky_relu);
+            break;
+        default:
+            throw std::runtime_error("deactivation type not supported yet");
+    }
+    
+    //activate threads
+    threadManager::doJob();
 }
 
+#include "gradients/gradients.cpp"
 // loss
 float tensor::loss(const tensor& correct, errors::errTypes e){
     if(correct.getDims() != dims)
         throw std::runtime_error("loss correct of incorrect dims");
     
-    return Loss(contents, correct.getContents(), N, e);
+    // make per-thread output
+    std::vector<float> outputs(threadManager::getActiveWorkers(), 0);
+
+    // data
+    threadManager::setData(&outputs[0], contents, correct.getContents(), nullptr);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+
+    // func
+    switch(e){
+        case errors::SE:
+            threadManager::setFunc(squaredError);
+            break;
+        case errors::MSE:
+            threadManager::setFunc(meanSquaredError);
+            break;
+        case errors::CE:
+            threadManager::setFunc(crossEntropyError);
+            break;
+        default:
+            throw std::runtime_error("loss type not supported yet");
+    }
+
+    //activate threads
+    threadManager::doJob();
+
+    return std::reduce(outputs.begin(), outputs.end());
 }
 void tensor::gradient(tensor& output, const tensor& correct, errors::errTypes e){
     if(output.getDims() != dims)
@@ -191,7 +291,29 @@ void tensor::gradient(tensor& output, const tensor& correct, errors::errTypes e)
     if(correct.getDims() != dims)
         throw std::runtime_error("gradient correct of incorrect dims");
 
-    Gradient(output.getContents(), contents, correct.getContents(), N, e);
+    // data
+    threadManager::setData(output.getContents(), contents, correct.getContents(), nullptr);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+
+    // func
+    switch(e){
+        case errors::SE:
+            threadManager::setFunc(squaredDiff);
+            break;
+        case errors::MSE:
+            threadManager::setFunc(meanSquaredDiff);
+            break;
+        case errors::CE:
+            threadManager::setFunc(crossEntropyDiff);
+            break;
+        default:
+            throw std::runtime_error("loss type not supported yet");
+    }
+    
+    //activate threads
+    threadManager::doJob();
 }
 
 // functions
@@ -283,7 +405,7 @@ void tensor::mult(tensor& output, const tensor& t) const{
     if(dims.size() < 2)
         throw std::runtime_error("multiplicaiton must have 2 or more dimensions");
 
-    
+    // check all excess dims match
     int x = dims.size();
     long block = 1;
     for(int i = 0; i < x-2; i++){
@@ -294,6 +416,7 @@ void tensor::mult(tensor& output, const tensor& t) const{
         block *= dims[i];
     }
 
+    // check reletive dims match
     if(dims[x-1] != t.getDims()[x-2])
         throw std::runtime_error("multiplicaiton mismatched K dim");
     if(output.getDims()[x-1] != t.getDims()[x-1])
@@ -337,7 +460,7 @@ void tensor::addAndMult(tensor& output, const tensor& t, const tensor& b) const{
     if(dims.size() < 2)
         throw std::runtime_error("add+multiplicaiton must have 2 or more dimensions");
 
-    
+    // check all excess dims match
     int x = dims.size();
     long block = 1;
     for(int i = 0; i < x-2; i++){
@@ -348,13 +471,13 @@ void tensor::addAndMult(tensor& output, const tensor& t, const tensor& b) const{
         block *= dims[i];
     }
 
+    // check reletive dims match
     if(dims[x-1] != t.getDims()[x-2])
         throw std::runtime_error("add+mult mismatched K dim");
     if(output.getDims()[x-1] != t.getDims()[x-1])
         throw std::runtime_error("add+mult mismatched m dim");
     if(output.getDims()[x-2] != dims[x-2])
         throw std::runtime_error("add+mult mismatched n dim");
-
     if(output.getDims() != b.getDims())
         throw std::runtime_error("add+mult output and adder dimentions mismatch");
     
@@ -392,7 +515,7 @@ void tensor::multAndInc(tensor& output, const tensor& t) const{
     if(dims.size() < 2)
         throw std::runtime_error("add+multiplicaiton must have 2 or more dimensions");
 
-    
+    // check all excess dims match
     int x = dims.size();
     long block = 1;
     for(int i = 0; i < x-2; i++){
@@ -403,6 +526,7 @@ void tensor::multAndInc(tensor& output, const tensor& t) const{
         block *= dims[i];
     }
 
+    // check reletive dims match
     if(dims[x-1] != t.getDims()[x-2])
         throw std::runtime_error("add+mult mismatched K dim");
     if(output.getDims()[x-1] != t.getDims()[x-1])
@@ -450,7 +574,7 @@ void tensor::fastDeMultL(tensor& output, const tensor& t) const{
     if(dims.size() < 2)
         throw std::runtime_error("multiplicaiton must have 2 or more dimensions");
 
-    
+    // check all excess dims match
     int x = dims.size();
     long block = 1;
     for(int i = 0; i < x-2; i++){
@@ -461,6 +585,7 @@ void tensor::fastDeMultL(tensor& output, const tensor& t) const{
         block *= dims[i];
     }
 
+    // check reletive dims match
     // y = dims[x-2]
     if(dims[x-2] != t.getDims()[x-2])
         throw std::runtime_error("multiplicaiton mismatched K dim");
@@ -497,7 +622,7 @@ void tensor::fastDeMultLInc(tensor& output, const tensor& t) const{
     if(dims.size() < 2)
         throw std::runtime_error("multiplicaiton must have 2 or more dimensions");
 
-    
+    // check all excess dims match
     int x = dims.size();
     long block = 1;
     for(int i = 0; i < x-2; i++){
@@ -508,6 +633,7 @@ void tensor::fastDeMultLInc(tensor& output, const tensor& t) const{
         block *= dims[i];
     }
 
+    // check reletive dims match
     // y = dims[x-2]
     if(dims[x-2] != t.getDims()[x-2])
         throw std::runtime_error("multiplicaiton mismatched K dim");
@@ -544,7 +670,7 @@ void tensor::fastDeMultR(tensor& output, const tensor& t) const{
     if(dims.size() < 2)
         throw std::runtime_error("multiplicaiton must have 2 or more dimensions");
 
-    
+    // check all excess dims match
     int x = dims.size();
     long block = 1;
     for(int i = 0; i < x-2; i++){
@@ -555,6 +681,7 @@ void tensor::fastDeMultR(tensor& output, const tensor& t) const{
         block *= dims[i];
     }
 
+    // check reletive dims match
     // y = dims[x-2]
     if(dims[x-1] != t.getDims()[x-1])
         throw std::runtime_error("multiplicaiton mismatched K dim");
@@ -586,7 +713,9 @@ void tensor::fastDeMultR(tensor& output, const tensor& t) const{
 }
 
 // operators
+// add
 tensor tensor::operator+(const tensor& t){
+    // make output
     tensor output(dims);
 
     add(output, t);
@@ -594,7 +723,9 @@ tensor tensor::operator+(const tensor& t){
     // return
     return output;
 }
+// add
 tensor tensor::operator+(const float& f){
+    // make output
     tensor output(dims);
 
     add(output, f);
@@ -602,7 +733,9 @@ tensor tensor::operator+(const float& f){
     // return
     return output;
 }
+// straight multiply
 tensor tensor::operator*(const tensor& t){
+    // make output
     tensor output(dims);
 
     sMult(output, t);
@@ -610,7 +743,9 @@ tensor tensor::operator*(const tensor& t){
     // return
     return output;
 }
+// straight multiply
 tensor tensor::operator*(const float& f){
+    // make output
     tensor output(dims);
 
     sMult(output, f);
@@ -618,6 +753,7 @@ tensor tensor::operator*(const float& f){
     // return
     return output;
 }
+// matrix multiply
 tensor tensor::operator^(const tensor& t){
     int x = dims.size();
     int m = t.getDims()[x-1];
@@ -632,12 +768,15 @@ tensor tensor::operator^(const tensor& t){
     // return
     return output;
 }
+// indexers
 float& tensor::operator[](const int& i_){return contents[i_];}
 const float& tensor::operator[](const int& i_) const{return contents[i_];}
 bool tensor::operator==(const tensor& t){
+    // check dims match
     if(t.getDims() != dims)
         return false;
     
+    // return false if a value does not match
     for(int i = 0; i < N; i++)
         if(contents[i] != t.getContents()[i])
             return false;
@@ -646,7 +785,9 @@ bool tensor::operator==(const tensor& t){
 }
 
 // debug
+// returns true if any are nan
 bool tensor::nantest() const{
+    // checks all values are not nan
     for(int i = 0; i < N; i++)
         if(contents[i] != contents[i])
             return true;
@@ -655,11 +796,15 @@ bool tensor::nantest() const{
 
 // print
 std::ostream& operator<<(std::ostream& os, const tensor& m){
-    std::cout << "created tensor of size: " << m.getN() << " and dims: [";
+    // print size
+    std::cout << "Tensor of size: " << m.getN() << " and dims: [";
+
+    // print dims
     for(int n : m.getDims())
         std::cout << n << ", ";
     std::cout << "]" << std::endl;
 
+    // print data
     std::cout << "[";
     for(long i = 0; i < m.getN(); i++)
         std::cout << m[i] << ", ";

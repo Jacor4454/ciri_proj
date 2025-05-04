@@ -48,7 +48,7 @@ TEST_F(NetworkTest, MakeNetwork) {
 }
 
 TEST_F(NetworkTest, MakeLearningNetwork) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 2, 0);
+    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 2);
     tensor myTensor1a({1, 784});
     tensor myTensor1b({1, 784});
     myNetwork.forward({myTensor1a, myTensor1b});
@@ -58,7 +58,7 @@ TEST_F(NetworkTest, MakeLearningNetwork) {
 }
 
 TEST_F(NetworkTest, LearningNetworkResize) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1, 0);
+    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
     tensor myTensor1a({1, 784});
     tensor myTensor1b({1, 784});
     myNetwork.forward({myTensor1a, myTensor1b}); // resizes from 1 to 2, should throw no errors
@@ -69,7 +69,7 @@ TEST_F(NetworkTest, LearningNetworkResize) {
 }
 
 TEST_F(NetworkTest, LearningNetworkLearn) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1, 0);
+    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
     tensor myTensor1a({1, 784});
     tensor myTensor1b({1, 784});
     tensor myTensor2a({1, 10});
@@ -78,7 +78,7 @@ TEST_F(NetworkTest, LearningNetworkLearn) {
 }
 
 TEST_F(NetworkTest, LearningNetworkOutput) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1, 0);
+    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
     
     int k = 8;
 

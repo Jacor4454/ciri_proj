@@ -13,6 +13,9 @@
 #include "./activators/activators.h"
 #include "./gradients/gradients.h"
 
+#include "gradients/gradients.h"
+#include "activators/activators.h"
+
 // main tensor definition for CPU bound compute
 class tensor{
     // variable definition

@@ -186,7 +186,8 @@ void deMultR_N_skip_shadie(inputs){
 }
 
 // multiply a and b, add c and output, splitting job by M
-void multNadd_M_skip_shadie(inputs){    // checks are performed off thread
+void multNadd_M_skip_shadie(inputs){
+    // checks are performed off thread
     for(int blk = 0; blk < block; blk++){
         for(int i = 0; i < n; i++){
             for(int j = offset; j < m; j+=step){
@@ -216,7 +217,8 @@ void multNadd_N_skip_shadie(inputs){
 }
 
 // multiply a and b, increment output by result, splitting job by M
-void multNInc_M_skip_shadie(inputs){    // checks are performed off thread
+void multNInc_M_skip_shadie(inputs){
+    // checks are performed off thread
     for(int blk = 0; blk < block; blk++){
         for(int i = 0; i < n; i++){
             for(int j = offset; j < m; j+=step){
@@ -230,7 +232,8 @@ void multNInc_M_skip_shadie(inputs){    // checks are performed off thread
     }
 }
 // multiply a and b, increment output by result, splitting job by N
-void multNInc_N_skip_shadie(inputs){    // checks are performed off thread
+void multNInc_N_skip_shadie(inputs){
+    // checks are performed off thread
     for(int blk = 0; blk < block; blk++){
         for(int i = offset; i < n; i+=step){
             for(int j = 0; j < m; j++){

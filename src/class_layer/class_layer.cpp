@@ -6,6 +6,7 @@ float inverse_sqrt(float number_){
 
 std::default_random_engine BaseLayer::generator = std::default_random_engine();
 
+// I/O to dims vector converter for the constructors
 std::vector<int> BaseLayer::makeWeightsDims(std::vector<int> in, std::vector<int> out){
     std::vector<int> output(in);
     int x = output.size();
@@ -14,6 +15,7 @@ std::vector<int> BaseLayer::makeWeightsDims(std::vector<int> in, std::vector<int
     return output;
 }
 
+// save as above but for the hidden weights
 std::vector<int> BaseLayer::makeHWeightsDims(std::vector<int> out){
     std::vector<int> output(out);
     int x = output.size();
@@ -21,6 +23,7 @@ std::vector<int> BaseLayer::makeHWeightsDims(std::vector<int> out){
     return output;
 }
 
+// load of errors to prevent implementing this class
 void BaseLayer::setAcc(activations::accTypes a){throw std::runtime_error("cannot ser acc type base layer");}
 BaseLayer::~BaseLayer(){}
 
@@ -29,4 +32,5 @@ void BaseLayer::backward(tensor& dInput, const tensor& input, const tensor& dOut
 void BaseLayer::learn(){throw std::runtime_error("cannot learn base layer");}
 void BaseLayer::clear(){throw std::runtime_error("cannot clear base layer");}
 
+// return layer type name
 std::string BaseLayer::getLayerType(){return "Base";}

@@ -11,9 +11,13 @@ RESTDIR=./src/rest/
 project: class_tensor.o main.o
 	$(COMPILER) $(CPPFLAGS) -o a $(OBJDIR)main.o $(OBJDIR)class_tensor.o
 
-test: test.o class_tensor.o class_layer.o class_learners.o class_perceptron.o class_recersive.o activators.o gradients.o class_network.o class_learning_network.o rest.o
-	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o b $(OBJDIR)test.o $(RESTDIR)rest.o $(OBJDIR)activators.o $(OBJDIR)class_learners.o $(OBJDIR)gradients.o $(OBJDIR)class_tensor.o $(OBJDIR)class_layer.o $(OBJDIR)class_network.o $(OBJDIR)class_learning_network.o $(OBJDIR)class_perceptron.o $(OBJDIR)class_recersive.o /usr/lib/libgtest.a
+test: test.o class_tensor.o class_layer.o class_learners.o class_perceptron.o class_recersive.o class_network.o class_learning_network.o rest.o
+	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o b $(OBJDIR)test.o $(RESTDIR)rest.o $(OBJDIR)class_learners.o $(OBJDIR)class_tensor.o $(OBJDIR)class_layer.o $(OBJDIR)class_network.o $(OBJDIR)class_learning_network.o $(OBJDIR)class_perceptron.o $(OBJDIR)class_recersive.o /usr/lib/libgtest.a
 	./b
+
+clean:
+	rm ./objects/*
+	make clean -C $(RESTDIR)
 
 rest.o:
 	make object -C $(RESTDIR)
@@ -38,12 +42,6 @@ class_perceptron.o:
 
 class_recersive.o:
 	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_recersive.o $(LAYERDIR)recersive/class_recersive.cpp
-
-activators.o:
-	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)activators.o $(TENSORDIR)activators/activators.cpp
-
-gradients.o:
-	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)gradients.o $(TENSORDIR)gradients/gradients.cpp
 
 playground:
 	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o c playground.cpp /usr/lib/libgtest.a

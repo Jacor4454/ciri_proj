@@ -10,9 +10,9 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
     dInt(out),
     hold(out)
 {
-    dweight = new BaseLearner(&weights, 0.1);
-    drweight = new BaseLearner(&rWeights, 0.1);
-    dbias = new BaseLearner(&bias, 0.1);
+    dweight = nullptr;
+    drweight = nullptr;
+    dbias = nullptr;
     weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weights.getN()), inverse_sqrt(weights.getN()));
     rWeights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(rWeights.getN()), inverse_sqrt(rWeights.getN()));
     bias.set(0.0);
@@ -22,26 +22,39 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
 void recursive::setAcc(activations::accTypes a){acc = a;}
 
 recursive::~recursive(){
-    delete dweight;
-    delete drweight;
-    delete dbias;
+    // delete heap memory
+    if(dweight != nullptr)
+        delete dweight;
+    if(drweight != nullptr)
+        delete drweight;
+    if(dbias != nullptr)
+        delete dbias;
 }
 
 void recursive::forward(tensor& output, const tensor& input){
-    // std::cout << "\nrecForward\n";
+
+    // do mx+c
     input.addAndMult(output, weights, bias);
-    // std::cout << weights << bias << input << output;
+
+    // add mx
     prev.multAndInc(output, rWeights);
-    // std::cout << prev << rWeights << output;
     
+    // activate
     output.activate(acc);
 
+    // store for next itt
     prev.cpy(output);
-    // std::cout << output;
-    // std::cout << "recForwardEnd\n\n";
 }
 
 void recursive::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& prevoutput, const tensor& output){
+    // allocate learning tensors if needed
+    if(dweight == nullptr)
+        dweight = new BaseLearner(&weights, 0.1);
+    if(drweight == nullptr)
+        drweight = new BaseLearner(&rWeights, 0.1);
+    if(dbias == nullptr)
+        dbias = new BaseLearner(&bias, 0.1);
+
     // deactivate output
     output.deactivate(hold, acc);
 
@@ -64,15 +77,21 @@ void recursive::backward(tensor& dInput, const tensor& input, const tensor& dOut
 }
 
 void recursive::learn(){
-    dweight->learn();
-    drweight->learn();
-    dbias->learn();
+    if(dweight != nullptr)
+        dweight->learn();
+    if(drweight != nullptr)
+        drweight->learn();
+    if(dbias != nullptr)
+        dbias->learn();
 }
 
 void recursive::clear(){
-    dweight->clear();
-    drweight->clear();
-    dbias->clear();
+    if(dweight != nullptr)
+        dweight->clear();
+    if(drweight != nullptr)
+        drweight->clear();
+    if(dbias != nullptr)
+        dbias->clear();
     prev.set(0.0);
     dInt.set(0.0);
 }

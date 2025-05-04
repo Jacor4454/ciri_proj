@@ -4,17 +4,15 @@
 #include <math.h>
 #include <stdexcept>
 
+// acc lables
 namespace activations {
     typedef enum{
         ReLU,
         Sigmoid,
         tanh,
-        softmax,
+        // softmax,
         leakyReLU,
     } accTypes;
 }
-
-void Activate(float*, long, activations::accTypes);
-void DeActivate(float*, float*, long, activations::accTypes);
 
 #endif
