@@ -63,6 +63,7 @@ myServ("0.0.0.0", port)
     if(port >= 0){
         keepServerAlive = true;
         t = std::thread(handler, &keepServerAlive, &myServ);
+        std::cout << "started webserver at:\n" << myServ.getAddr()D;
     }
 }
 
