@@ -38,7 +38,7 @@ void crossEntropyError(grainputs){
         }
 }
 void crossEntropyDiff(grainputs){
-    // d = -((c/x) + (1-c)/(1-x))
+    // d = -((c/x) - (1-c)/(1-x))
     for(int i = offset; i < n; i+=step)
         if(data[i] == 0){
             output[i] = -1*((correct[i]/0.0000001)-((1-correct[i])/(0.9999999)));

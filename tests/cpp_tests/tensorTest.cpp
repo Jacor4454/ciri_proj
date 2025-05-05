@@ -488,29 +488,43 @@ TEST_F(TensorTest, Activations){
     EXPECT_TRUE(myTensor1 == myTensor2);
 }
 TEST_F(TensorTest, Gradients){
-    // not done cross entropy yet cos come on
-
-    // squared error
     tensor myTensor1({2,3}); // vals
     tensor myTensor2({2,3}); // correct
+    tensor myTensor3({2,3}); // gradient output
+    tensor myTensor4({2,3}); // expected
+
+    // squared error
+    // vals = {-2,-1,0,1,2,3}
+    // correct = {0,1,2,3,4,5}
     for(int i = 0; i < 6; i++){
         myTensor1[i] = i-2;
         myTensor2[i] = i;
     }
-    EXPECT_EQ(myTensor1.loss(myTensor2, errors::SE), 24);
-    tensor myTensor3({2,3}); // gradient output
+    EXPECT_FLOAT_EQ(myTensor1.loss(myTensor2, errors::SE), 24.0);
     myTensor1.gradient(myTensor3, myTensor2, errors::SE);
-    tensor myTensor4({2,3}); // expected
     myTensor4.cpy({-4,-4,-4,-4,-4,-4});
-    EXPECT_TRUE(myTensor3 == myTensor4);
-
-    // mean squared error    
     for(int i = 0; i < 6; i++)
-        myTensor1[i] = i-2;
-    EXPECT_EQ(myTensor1.loss(myTensor2, errors::MSE), 4);
+        EXPECT_FLOAT_EQ(myTensor3[i], myTensor4[i]);
+
+    // mean squared error
+    // vals = {-2,-1,0,1,2,3}
+    // correct = {0,1,2,3,4,5}
+    EXPECT_FLOAT_EQ(myTensor1.loss(myTensor2, errors::MSE), 4.0);
     myTensor1.gradient(myTensor3, myTensor2, errors::MSE);
     myTensor4.cpy({-2.0/3,-2.0/3,-2.0/3,-2.0/3,-2.0/3,-2.0/3});
-    EXPECT_TRUE(myTensor3 == myTensor4);
+    for(int i = 0; i < 6; i++)
+        EXPECT_FLOAT_EQ(myTensor3[i], myTensor4[i]);
+
+    // cross entropy
+    // vals = {0,0.25,0.5,0.5,0.75,1}
+    // correct = {0.25,0.75,0,1,0.5,0}
+    myTensor1.cpy({0,0.25,0.5,0.5,0.75,1});
+    myTensor2.cpy({0.25,0.75,0,1,0.5,0});
+    EXPECT_FLOAT_EQ(myTensor1.loss(myTensor2, errors::CE), 23.48254351);
+    myTensor1.gradient(myTensor3, myTensor2, errors::CE);
+    myTensor4.cpy({-2499999.25,-8.0/3,2,-2,4.0/3,10000000});
+    for(int i = 0; i < 6; i++)
+        EXPECT_FLOAT_EQ(myTensor3[i], myTensor4[i]);
 }
 TEST_F(TensorTest, TensorAddAndMult) {
     int n = 2;
