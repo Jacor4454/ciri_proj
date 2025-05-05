@@ -51,14 +51,14 @@ void deTanh(accinputs){
 //     }
 // }
 
-#define ReLU_leakyness 0.01
-void Leaky_relu(accinputs){
-    for(int i = offset; i < n; i+=step){
-        data[i] = (data[i] > 0) ? data[i] : data[i]*ReLU_leakyness;
-    }
-}
-void deLeaky_relu(accinputs){
-    for(int i = offset; i < n; i+=step){
-        output[i] = (data[i] > 0) ? 1.0 : ReLU_leakyness;
-    }
-}
+// #define ReLU_leakyness 0.01
+// void Leaky_relu(accinputs){
+//     for(int i = offset; i < n; i+=step){
+//         data[i] = (data[i] > 0) ? data[i] : data[i]*ReLU_leakyness;
+//     }
+// }
+// void deLeaky_relu(accinputs){
+//     for(int i = offset; i < n; i+=step){
+//         output[i] = (data[i] > 0) ? 1.0 : ReLU_leakyness;
+//     }
+// }

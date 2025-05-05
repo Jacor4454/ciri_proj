@@ -205,9 +205,9 @@ void tensor::activate(activations::accTypes a){
         // case activations::softmax:
         //     Softmax(data, N);
         //     break;
-        case activations::leakyReLU:
-            threadManager::setFunc(Leaky_relu);
-            break;
+        // case activations::leakyReLU:
+        //     threadManager::setFunc(Leaky_relu);
+        //     break;
         default:
             throw std::runtime_error("activation type not supported yet");
     }
@@ -239,9 +239,9 @@ void tensor::deactivate(tensor& output, activations::accTypes a) const{
         // case activations::softmax:
         //     deSoftmax(output, data, N);
         //     break;
-        case activations::leakyReLU:
-            threadManager::setFunc(deLeaky_relu);
-            break;
+        // case activations::leakyReLU:
+        //     threadManager::setFunc(deLeaky_relu);
+        //     break;
         default:
             throw std::runtime_error("deactivation type not supported yet");
     }

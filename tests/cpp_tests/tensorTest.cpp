@@ -467,26 +467,43 @@ TEST_F(TensorTest, TensorDeMultRN3D) {
     myTensor1.fastDeMultR(myTensor4, myTensor2);
     EXPECT_TRUE(myTensor4 == myTensor3);
 }
+
+
+
 TEST_F(TensorTest, Activations){
-    // only done main 3 so far
-    tensor myTensor1({2,3});
+    tensor myTensor1({2,3}); // input/activated
+    tensor myTensor2({2,3}); // expected
+
+    // ReLU
     for(int i = 0; i < 6; i++)
         myTensor1[i] = i-2;
     myTensor1.activate(activations::ReLU);
-    tensor myTensor2({2,3});
     myTensor2.cpy({0,0,0,1,2,3});
     EXPECT_TRUE(myTensor1 == myTensor2);
 
+    // Sigmoid
     myTensor1.cpy({-9E28,9E28,1,-1,0,0});
     myTensor1.activate(activations::Sigmoid);
     myTensor2.cpy({0,1,0.731058578630074,0.26894142136992605,0.5,0.5});
     EXPECT_TRUE(myTensor1 == myTensor2);
 
+    // tanh
     myTensor1.cpy({-9E28,9E28,1,-1,0,0});
     myTensor1.activate(activations::tanh);
     myTensor2.cpy({-1,1,0.76159415595,-0.76159415595,0,0});
     EXPECT_TRUE(myTensor1 == myTensor2);
 }
+
+
+
+
+
+
+
+
+
+
+
 TEST_F(TensorTest, Gradients){
     tensor myTensor1({2,3}); // vals
     tensor myTensor2({2,3}); // correct

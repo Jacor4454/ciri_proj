@@ -11,7 +11,7 @@ namespace activations {
         Sigmoid,
         tanh,
         // softmax,
-        leakyReLU,
+        // leakyReLU,
     } accTypes;
 }
 
