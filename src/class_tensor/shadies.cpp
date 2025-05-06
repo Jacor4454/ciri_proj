@@ -1,6 +1,10 @@
 #include "class_tensor.h"
 
-#define inputs float* output, float* a, float* b, float*c, long n, long m, long k, long block, int offset, int step
+#define inputs float* output, float* a, float* b, float* c, long n, long m, long k, long block, int offset, int step
+
+float invSqrt(float f){
+    return 1/sqrt(f);
+}
 
 // shadies and funcs
 // adds 2 matrix's into output
@@ -252,5 +256,55 @@ void alpha_sub(inputs){
     // checks are performed off thread
     for(int i = offset; i < n; i+=step){
         output[i] -= a[i] * *b;
+    }
+}
+
+void adagrad_shadie(inputs){
+    // checks are performed off thread
+    for(int i = offset; i < n; i+=step){
+        b[i] += a[i]*a[i];
+        output[i] -= (*c) * a[i] * invSqrt(b[i]+0.00000001);
+    }
+}
+
+// https://medium.com/@akshayush007/journey-llm-7-optimization-algorithms-wrt-deep-learning-04a8cec8fc25
+// moving average: https://medium.com/analytics-vidhya/momentum-a-simple-yet-efficient-optimizing-technique-ef76834e4423
+// idk what this is
+// void momentum_shadie(inputs){
+//     // checks are performed off thread
+//     for(int i = offset; i < n; i+=step){
+//         b[i] = (b[i]*c[1]) + (a[i]*(1-c[1]));
+//         output[i] -= b[i] * c[0];
+//     }
+// }
+
+void momentum_shadie(inputs){
+    // checks are performed off thread
+    for(int i = offset; i < n; i+=step){
+        b[i] = (b[i]*c[1]) + (a[i]*c[0]);
+        output[i] -= b[i];
+    }
+}
+//adams
+void adam_m_shadie(inputs){
+    // checks are performed off thread
+    for(int i = offset; i < n; i+=step){
+        a[i] = (a[i]*c[1]) + (1-c[1])*b[i];
+    }
+}
+void adam_v_shadie(inputs){
+    // checks are performed off thread
+    for(int i = offset; i < n; i+=step){
+        a[i] = (a[i]*c[2]) + (1-c[2])*b[i]*b[i];
+    }
+}
+void adam_c_shadie(inputs){
+    // checks are performed off thread
+    for(int i = offset; i < n; i+=step){
+        c[3] *= c[1];
+        c[4] *= c[2];
+        float mb = a[i]/(1-c[3]);
+        float vb = b[i]/(1-c[4]);
+        output[i] -= mb * invSqrt(vb+0.0000001)*c[0];
     }
 }

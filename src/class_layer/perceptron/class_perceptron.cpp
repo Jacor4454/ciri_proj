@@ -12,9 +12,26 @@ perceptron::perceptron(std::vector<int> in, std::vector<int> out):
     weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weights.getN()), inverse_sqrt(weights.getN()));
     bias.set(0.0);
     acc = activations::ReLU;
+    bls = new AlphaLearnerSelector(0.01);
 }
 
 void perceptron::setAcc(activations::accTypes a){acc = a;}
+
+void perceptron::setLearners(BaseLearnerSelector* bls_){
+    if(bls_ == nullptr)
+        return;
+    
+    if(dweight != nullptr)
+        delete dweight;
+    if(dbias != nullptr)
+        delete dbias;
+    if(bls != nullptr)
+        delete bls;
+
+    bls = bls_;
+    dweight = bls->construct(&weights);
+    dbias = bls->construct(&bias);
+}
 
 perceptron::~perceptron(){
     // delete heap memory
@@ -35,9 +52,9 @@ void perceptron::forward(tensor& output, const tensor& input){
 void perceptron::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& IGNORE, const tensor& output){
     // allocate learning tensors if needed
     if(dweight == nullptr)
-        dweight = new BaseLearner(&weights, 0.1);
+        dweight = bls->construct(&weights);
     if(dbias == nullptr)
-        dbias = new BaseLearner(&bias, 0.1);
+        dbias = bls->construct(&bias);
 
     // deactivate output
     output.deactivate(hold, acc);

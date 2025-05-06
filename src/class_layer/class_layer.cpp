@@ -24,7 +24,8 @@ std::vector<int> BaseLayer::makeHWeightsDims(std::vector<int> out){
 }
 
 // load of errors to prevent implementing this class
-void BaseLayer::setAcc(activations::accTypes a){throw std::runtime_error("cannot ser acc type base layer");}
+void BaseLayer::setAcc(activations::accTypes a){throw std::runtime_error("cannot set acc type in base layer");}
+void BaseLayer::setLearners(BaseLearnerSelector* bls){throw std::runtime_error("cannot set learner type in base layer");}
 BaseLayer::~BaseLayer(){}
 
 void BaseLayer::forward(tensor& output, const tensor& input){throw std::runtime_error("cannot forward base layer");}

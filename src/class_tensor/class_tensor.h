@@ -86,6 +86,13 @@ class tensor{
     float loss(const tensor&, errors::errTypes);
     void gradient(tensor&, const tensor&, errors::errTypes);
 
+    // learners
+    void adagrad(tensor&, const tensor&, float);
+    void momentum(tensor& output, const tensor& d, float* alphas);
+    void adam_m(const tensor& d, float* alphas);
+    void adam_v(const tensor& d, float* alphas);
+    void adam_c(tensor& output, const tensor& d, float* alphas);
+
     // functions
     void add(tensor&, const tensor&) const;
     void add(tensor&, const float&) const;

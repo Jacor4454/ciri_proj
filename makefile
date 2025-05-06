@@ -23,7 +23,7 @@ rest.o:
 	make object -C $(RESTDIR)
 
 class_learners.o:
-	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_learners.o $(LAYERDIR)learners/class_learner.cpp
+	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_learners.o $(LAYERDIR)learners/class_base.cpp
 
 class_tensor.o:
 	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_tensor.o $(TENSORDIR)class_tensor.cpp

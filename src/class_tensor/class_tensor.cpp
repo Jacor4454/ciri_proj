@@ -316,6 +316,123 @@ void tensor::gradient(tensor& output, const tensor& correct, errors::errTypes e)
     threadManager::doJob();
 }
 
+// learners
+void tensor::adagrad(tensor& output, const tensor& d, float alpha){
+    if(dims != d.getDims())
+        throw std::runtime_error("adagrad of mismatched dimensions");
+    if(dims != output.getDims())
+        throw std::runtime_error("adagrad output wrong dimensions");
+
+    // lr = alpha/root(sum(a^2)+0.00000001)
+    // a -= lr * da
+
+    // self is a^2
+    // d is da
+    // output is a
+
+    // data
+    threadManager::setData(output.getContents(), d.getContents(), contents, &alpha);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+    
+    // func
+    threadManager::setFunc(&adagrad_shadie);
+
+    //activate threads
+    threadManager::doJob();
+}
+
+void tensor::momentum(tensor& output, const tensor& d, float* alphas){
+    if(dims != d.getDims())
+        throw std::runtime_error("momentum of mismatched dimensions");
+    if(dims != output.getDims())
+        throw std::runtime_error("momentum output wrong dimensions");
+
+    // lr = b*a + (1-b)*da
+    // a -= lr * alpha
+
+    // self is a^2
+    // d is da
+    // output is a
+
+    // output = weights
+    // a = dweights
+    // b = mean_dweights
+    // c = {alpha, beta}
+
+    // data
+    threadManager::setData(output.getContents(), d.getContents(), contents, alphas);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+    
+    // func
+    threadManager::setFunc(&momentum_shadie);
+
+    //activate threads
+    threadManager::doJob();
+}
+
+void tensor::adam_m(const tensor& d, float* alphas){
+    if(dims != d.getDims())
+        throw std::runtime_error("adam m of mismatched dimensions");
+
+    // self is m
+
+    // data
+    threadManager::setData(nullptr, contents, d.getContents(), alphas);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+    
+    // func
+    threadManager::setFunc(&adam_m_shadie);
+
+    //activate threads
+    threadManager::doJob();
+}
+
+void tensor::adam_v(const tensor& d, float* alphas){
+    if(dims != d.getDims())
+        throw std::runtime_error("adam m of mismatched dimensions");
+
+    // self is v
+
+    // data
+    threadManager::setData(nullptr, contents, d.getContents(), alphas);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+    
+    // func
+    threadManager::setFunc(&adam_v_shadie);
+
+    //activate threads
+    threadManager::doJob();
+}
+void tensor::adam_c(tensor& output, const tensor& m, float* alphas){
+    if(dims != m.getDims())
+        throw std::runtime_error("momentum of mismatched dimensions");
+    if(dims != output.getDims())
+        throw std::runtime_error("momentum output wrong dimensions");
+
+    // self is velocity
+    // m is m
+
+    // data
+    threadManager::setData(output.getContents(), m.getContents(), contents, alphas);
+
+    // dims
+    threadManager::setDims(N, 1, 1, 1);
+    
+    // func
+    threadManager::setFunc(&adam_c_shadie);
+
+    //activate threads
+    threadManager::doJob();
+}
+
 // functions
 void tensor::add(tensor& output, const tensor& t) const{
     if(dims != t.getDims())

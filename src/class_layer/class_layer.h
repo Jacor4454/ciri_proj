@@ -2,7 +2,7 @@
 #define CLASS_ABS_LAYER_H
 
 #include "../class_tensor/class_tensor.h"
-#include "./learners/class_learner.h"
+#include "./learners/class_base.h"
 
 float inverse_sqrt(float number_);
 
@@ -14,6 +14,7 @@ class BaseLayer{
     static std::default_random_engine generator;
 
     virtual void setAcc(activations::accTypes);
+    virtual void setLearners(BaseLearnerSelector*);
     virtual ~BaseLayer();
 
     virtual void forward(tensor&, const tensor&);

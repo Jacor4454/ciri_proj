@@ -103,7 +103,7 @@ TEST_F(NetworkTest, LearningNetworkOutput) {
 
 #ifdef LEARNINGNETWORK_FULLLEARN
 TEST_F(NetworkTest, LearningNetworkFullLearn) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,10}, layers::recursive, activations::Sigmoid)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1, 1231);
+    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,10}, layers::recursive, activations::Sigmoid, new AdamLearnerSelector(0.1,0.9,0.999))}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid, errors::MSE, new AdamLearnerSelector(0.1,0.9,0.999)), 1, 1231);
     
     int n = 50000;
     int k = 8;

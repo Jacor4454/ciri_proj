@@ -24,22 +24,28 @@ class layerDefObject {
     std::vector<int> outputDims;
     layers::layerTypes lyrTyp;
     activations::accTypes accTyp;
+    BaseLearnerSelector* oppTyp;
     public:
-    layerDefObject(std::vector<int> o, layers::layerTypes lyrTyp_, activations::accTypes accTyp_):outputDims(o){lyrTyp = lyrTyp_; accTyp = accTyp_;}
+    layerDefObject(std::vector<int> o, layers::layerTypes lyrTyp_, activations::accTypes accTyp_, BaseLearnerSelector* oppTyp_=nullptr):outputDims(o){lyrTyp = lyrTyp_; accTyp = accTyp_; oppTyp = oppTyp_;}
     std::vector<int> getDims(){return outputDims;}
     layers::layerTypes getLyrTyp(){return lyrTyp;}
     activations::accTypes getAccTyp(){return accTyp;}
+    BaseLearnerSelector* getOppTyp(){return oppTyp;}
 };
 class outputDefObject {
     private:
     std::vector<int> outputDims;
     layers::layerTypes lyrTyp;
     activations::accTypes accTyp;
+    errors::errTypes errTyp;
+    BaseLearnerSelector* oppTyp;
     public:
-    outputDefObject(std::vector<int> o, layers::layerTypes lyrTyp_, activations::accTypes accTyp_):outputDims(o){lyrTyp = lyrTyp_; accTyp = accTyp_;}
+    outputDefObject(std::vector<int> o, layers::layerTypes lyrTyp_, activations::accTypes accTyp_, errors::errTypes errTyp_=errors::SE, BaseLearnerSelector* oppTyp_=nullptr):outputDims(o){lyrTyp = lyrTyp_; accTyp = accTyp_; errTyp = errTyp_; oppTyp = oppTyp_;}
     std::vector<int> getDims(){return outputDims;}
     layers::layerTypes getLyrTyp(){return lyrTyp;}
     activations::accTypes getAccTyp(){return accTyp;}
+    errors::errTypes getErrTyp(){return errTyp;}
+    BaseLearnerSelector* getOppTyp(){return oppTyp;}
 };
 
 

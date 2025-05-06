@@ -17,9 +17,29 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
     rWeights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(rWeights.getN()), inverse_sqrt(rWeights.getN()));
     bias.set(0.0);
     acc = activations::ReLU;
+    bls = new AlphaLearnerSelector(0.01);
 }
 
 void recursive::setAcc(activations::accTypes a){acc = a;}
+
+void recursive::setLearners(BaseLearnerSelector* bls_){
+    if(bls_ == nullptr)
+        return;
+
+    if(dweight != nullptr)
+        delete dweight;
+    if(drweight != nullptr)
+        delete drweight;
+    if(dbias != nullptr)
+        delete dbias;
+    if(bls != nullptr)
+        delete bls;
+
+    bls = bls_;
+    dweight = bls->construct(&weights);
+    drweight = bls->construct(&rWeights);
+    dbias = bls->construct(&bias);
+}
 
 recursive::~recursive(){
     // delete heap memory
@@ -29,6 +49,8 @@ recursive::~recursive(){
         delete drweight;
     if(dbias != nullptr)
         delete dbias;
+    if(bls != nullptr)
+        delete bls;
 }
 
 void recursive::forward(tensor& output, const tensor& input){
@@ -49,11 +71,11 @@ void recursive::forward(tensor& output, const tensor& input){
 void recursive::backward(tensor& dInput, const tensor& input, const tensor& dOutput, const tensor& prevoutput, const tensor& output){
     // allocate learning tensors if needed
     if(dweight == nullptr)
-        dweight = new BaseLearner(&weights, 0.1);
+        dweight = bls->construct(&weights);
     if(drweight == nullptr)
-        drweight = new BaseLearner(&rWeights, 0.1);
+        drweight = bls->construct(&rWeights);
     if(dbias == nullptr)
-        dbias = new BaseLearner(&bias, 0.1);
+        dbias = bls->construct(&bias);
 
     // deactivate output
     output.deactivate(hold, acc);

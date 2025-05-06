@@ -1,12 +1,5 @@
 #include "class_learning_network.h"
 
-
-// void exiting(int i){
-//     log::add("program terminating");
-//     log::close();
-//     exit(0);
-// }
-
 void handler(bool* keepAlive, HTTPServer* s){
     while(*keepAlive)
         (*s).handleCon();
@@ -31,10 +24,13 @@ myServ("0.0.0.0", port)
         dimss[i+1] = ls[i].getDims();
         layers[i] = network::getLayer(ls[i].getLyrTyp(), dimss[i], dimss[i+1]);
         layers[i]->setAcc(ls[i].getAccTyp());
+        layers[i]->setLearners(ls[i].getOppTyp());
     }
     dimss[N] = o.getDims();
     layers[N-1] = network::getLayer(o.getLyrTyp(), dimss[N-1], dimss[N]);
     layers[N-1]->setAcc(o.getAccTyp());
+
+    lossType = o.getErrTyp();
 
     // make tensors for passing
     for(auto& v : dimss)
@@ -48,15 +44,6 @@ myServ("0.0.0.0", port)
     invts.reserve(N+1);
     for(auto& v : dimss)
         invts.push_back(tensor(v));
-    
-    // //^C
-    // signal(SIGINT, exiting);
-    // //abort()
-    // signal(SIGABRT, exiting);
-    // //sent by "kill" command
-    // signal(SIGTERM, exiting);
-    // //^Z
-    // signal(SIGTSTP, exiting);
 
     // start webpage thread
     keepServerAlive = false;
@@ -136,8 +123,8 @@ void learningNetwork::backward(const std::vector<tensor>& correct){
     float loss = 0;
     for(int it = itts-1; it >= 0; it--){
         // differentiate the top
-        loss += tss[it+1][N].loss(correct[it], errors::MSE);
-        tss[it+1][N].gradient(invts[N], correct[it], errors::MSE);
+        loss += tss[it+1][N].loss(correct[it], lossType);
+        tss[it+1][N].gradient(invts[N], correct[it], lossType);
 
         for(int i = N-1; i >= 0; i--)
             layers[i]->backward(invts[i], tss[it+1][i], invts[i+1], tss[it][i+1], tss[it+1][i+1]);

@@ -12,6 +12,7 @@ class learningNetwork {
     int currMaxItt, lastItt;
     std::vector<std::vector<tensor>> tss;
     std::vector<tensor> invts;
+    errors::errTypes lossType;
 
     // rest server
     HTTPServer myServ;

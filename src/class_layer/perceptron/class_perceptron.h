@@ -12,10 +12,12 @@ class perceptron : public BaseLayer{
     BaseLearner* dbias;
     tensor hold;
     activations::accTypes acc;
+    BaseLearnerSelector* bls;
 
     public:
     perceptron(std::vector<int>, std::vector<int>);
     void setAcc(activations::accTypes);
+    void setLearners(BaseLearnerSelector*);
     virtual ~perceptron();
 
     void forward(tensor&, const tensor&);

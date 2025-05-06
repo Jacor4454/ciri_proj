@@ -17,11 +17,13 @@ class recursive : public BaseLayer{
     tensor dInt;
     tensor prev;
     activations::accTypes acc;
+    BaseLearnerSelector* bls;
     
 
     public:
     recursive(std::vector<int>, std::vector<int>);
     void setAcc(activations::accTypes);
+    void setLearners(BaseLearnerSelector*);
     virtual ~recursive();
 
     void forward(tensor&, const tensor&);

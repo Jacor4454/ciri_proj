@@ -467,9 +467,6 @@ TEST_F(TensorTest, TensorDeMultRN3D) {
     myTensor1.fastDeMultR(myTensor4, myTensor2);
     EXPECT_TRUE(myTensor4 == myTensor3);
 }
-
-
-
 TEST_F(TensorTest, Activations){
     tensor myTensor1({2,3}); // input/activated
     tensor myTensor2({2,3}); // expected
@@ -493,17 +490,6 @@ TEST_F(TensorTest, Activations){
     myTensor2.cpy({-1,1,0.76159415595,-0.76159415595,0,0});
     EXPECT_TRUE(myTensor1 == myTensor2);
 }
-
-
-
-
-
-
-
-
-
-
-
 TEST_F(TensorTest, Gradients){
     tensor myTensor1({2,3}); // vals
     tensor myTensor2({2,3}); // correct

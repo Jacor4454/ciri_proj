@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-// #define LEARNINGNETWORK_FULLLEARN
+#define LEARNINGNETWORK_FULLLEARN
 #define TENSOR_BENCHMARK
 
 // all test includes
