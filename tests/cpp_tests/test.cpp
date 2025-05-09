@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 
-#define LEARNINGNETWORK_FULLLEARN
+// #define LEARNINGNETWORK_FULLLEARN
 #define TENSOR_BENCHMARK
 
 // all test includes
 #include "tensorTest.cpp"
+#include "learnerTest.cpp"
 #include "perceptronLayerTest.cpp"
 #include "recursiveLayerTest.cpp"
 #include "networkTest.cpp"

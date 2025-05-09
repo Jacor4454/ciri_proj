@@ -5,7 +5,7 @@ AdamLearner::AdamLearner(tensor* orr, float alpha_, float beta1_, float beta2_):
     momentum(*orr),
     velocity(*orr)
 {
-    alphas = (float*)malloc(sizeof(float)*3);
+    alphas = (float*)malloc(sizeof(float)*5);
     alphas[0] = alpha_;
     alphas[1] = beta1_;
     alphas[2] = beta2_;
@@ -32,6 +32,8 @@ void AdamLearner::backprop(const tensor& a){
 void AdamLearner::learn(){
     momentum.adam_m(differ, alphas);
     velocity.adam_v(differ, alphas);
+    alphas[3] *= alphas[1];
+    alphas[4] *= alphas[2];
     velocity.adam_c(*original, momentum, alphas);
 }
 

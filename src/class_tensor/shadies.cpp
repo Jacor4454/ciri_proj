@@ -285,6 +285,9 @@ void momentum_shadie(inputs){
         output[i] -= b[i];
     }
 }
+
+
+// https://www.geeksforgeeks.org/adam-optimizer/
 //adams
 void adam_m_shadie(inputs){
     // checks are performed off thread
@@ -301,10 +304,8 @@ void adam_v_shadie(inputs){
 void adam_c_shadie(inputs){
     // checks are performed off thread
     for(int i = offset; i < n; i+=step){
-        c[3] *= c[1];
-        c[4] *= c[2];
         float mb = a[i]/(1-c[3]);
         float vb = b[i]/(1-c[4]);
-        output[i] -= mb * invSqrt(vb+0.0000001)*c[0];
+        output[i] -= mb * invSqrt(vb+0.0000001) * c[0];
     }
 }
