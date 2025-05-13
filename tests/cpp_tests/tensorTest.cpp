@@ -630,7 +630,7 @@ TEST_F(TensorTest, TensorAlpha) {
     tensor myTensor1({Ex, n, m});
     tensor myTensor2({Ex, n, m});
     tensor myTensor3({Ex, n, m});
-    for(int i = 0; i < 24; i++){
+    for(int i = 0; i < 48; i++){
         myTensor1[i] = (i+1) * 4;
         myTensor2[i] = 17;
         myTensor3[i] = 17 - (i+1);
@@ -639,6 +639,23 @@ TEST_F(TensorTest, TensorAlpha) {
 
     myTensor1.alphaSub(myTensor2, 0.25);
     EXPECT_TRUE(myTensor3 == myTensor2);
+}
+TEST_F(TensorTest, TensorSave) {
+    int n = 3;
+    int m = 8;
+    int Ex = 2;
+    tensor myTensor1({Ex, n, m});
+    for(int i = 0; i < 48; i++)
+        myTensor1[i] = (i+1) * 4;
+
+    std::ofstream f("testfile", std::ios::binary);
+    myTensor1.save(f);
+    f.close();
+
+    std::ifstream f2("testfile", std::ios::binary);
+    tensor myTensor2(f2);
+
+    EXPECT_TRUE(myTensor1 == myTensor2);
 }
 
 

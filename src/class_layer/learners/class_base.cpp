@@ -1,5 +1,7 @@
 #include "class_base.h"
 
+BaseLearner::~BaseLearner(){}
+
 void BaseLearner::backprop(const tensor& a, const tensor& b){
     throw std::runtime_error("cannot use base learner class");
 }
@@ -15,6 +17,18 @@ void BaseLearner::learn(){
 void BaseLearner::clear(){
     throw std::runtime_error("cannot use base learner class");
 }
+
+void BaseLearner::checkpoint(std::ofstream& f){
+    throw std::runtime_error("cannot use base learner class");
+}
+
+std::string BaseLearner::getLearnerType(){
+    return "Base";
+}
+
+
+
+BaseLearnerSelector::~BaseLearnerSelector(){}
 
 BaseLearner* BaseLearnerSelector::construct(tensor* t){
     throw std::runtime_error("cannot construct base learner selector");

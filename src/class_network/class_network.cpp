@@ -16,6 +16,25 @@ BaseLayer* network::getLayer(layers::layerTypes l, std::vector<int>& in, std::ve
     return output;
 }
 
+BaseLayer* network::getLayer(std::ifstream& f){
+    int n;
+    f.read(reinterpret_cast<char*>(&n), sizeof(int));
+
+    std::stringstream ss;
+    char c;
+    for(int i = 0; i < n; i++){
+        f.read(&c, sizeof(char));
+        ss << c;
+    }
+
+    if(ss.str() == perceptron::getLayerTypeStat())
+            return new perceptron(f);
+    if(ss.str() == recursive::getLayerTypeStat())
+            return new recursive(f);
+    
+    throw std::runtime_error("layer not implemented in network constructor");
+}
+
 network::network(inputDefObject i, std::vector<layerDefObject> ls, outputDefObject o){
     // get network size and expand/reserve
     N = ls.size()+1;

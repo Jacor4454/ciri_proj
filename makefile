@@ -11,8 +11,8 @@ RESTDIR=./src/rest/
 project: class_tensor.o main.o
 	$(COMPILER) $(CPPFLAGS) -o a $(OBJDIR)main.o $(OBJDIR)class_tensor.o
 
-test: test.o class_tensor.o class_layer.o class_learners.o class_perceptron.o class_recersive.o class_network.o class_learning_network.o rest.o
-	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o b $(OBJDIR)test.o $(RESTDIR)rest.o $(OBJDIR)class_learners.o $(OBJDIR)class_tensor.o $(OBJDIR)class_layer.o $(OBJDIR)class_network.o $(OBJDIR)class_learning_network.o $(OBJDIR)class_perceptron.o $(OBJDIR)class_recersive.o /usr/lib/libgtest.a
+test: test.o class_tensor.o class_layers.o class_learners.o class_network.o class_learning_network.o rest.o
+	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o b $(OBJDIR)test.o $(RESTDIR)rest.o $(OBJDIR)class_learners.o $(OBJDIR)class_tensor.o $(OBJDIR)class_layers.o $(OBJDIR)class_network.o $(OBJDIR)class_learning_network.o /usr/lib/libgtest.a
 	./b
 
 clean:
@@ -34,14 +34,8 @@ class_network.o:
 class_learning_network.o:
 	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_learning_network.o $(NETWORKDIR)class_learning_network.cpp
 
-class_layer.o:
-	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_layer.o $(LAYERDIR)class_layer.cpp
-
-class_perceptron.o:
-	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_perceptron.o $(LAYERDIR)perceptron/class_perceptron.cpp
-
-class_recersive.o:
-	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_recersive.o $(LAYERDIR)recersive/class_recersive.cpp
+class_layers.o:
+	$(COMPILER) $(CPPFLAGS) -c -o $(OBJDIR)class_layers.o $(LAYERDIR)class_layer.cpp
 
 playground:
 	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o c playground.cpp /usr/lib/libgtest.a

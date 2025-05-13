@@ -23,6 +23,16 @@ std::vector<int> BaseLayer::makeHWeightsDims(std::vector<int> out){
     return output;
 }
 
+std::vector<int> BaseLayer::loadWeightsDims(std::ifstream& f){
+    int n;
+
+    f.read(reinterpret_cast<char*>(&n), sizeof(int));
+    std::vector<int> output(n);
+    f.read(reinterpret_cast<char*>(&output[0]), sizeof(int)*n);
+
+    return output;
+}
+
 // load of errors to prevent implementing this class
 void BaseLayer::setAcc(activations::accTypes a){throw std::runtime_error("cannot set acc type in base layer");}
 void BaseLayer::setLearners(BaseLearnerSelector* bls){throw std::runtime_error("cannot set learner type in base layer");}
@@ -33,5 +43,13 @@ void BaseLayer::backward(tensor& dInput, const tensor& input, const tensor& dOut
 void BaseLayer::learn(){throw std::runtime_error("cannot learn base layer");}
 void BaseLayer::clear(){throw std::runtime_error("cannot clear base layer");}
 
+void BaseLayer::save(std::ofstream&){throw std::runtime_error("cannot save base layer");}
+void BaseLayer::save_checkpoint(std::ofstream&){throw std::runtime_error("cannot save base layer");}
+
 // return layer type name
 std::string BaseLayer::getLayerType(){return "Base";}
+
+
+
+#include "./perceptron/class_perceptron.cpp"
+#include "./recersive/class_recersive.cpp"

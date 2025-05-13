@@ -5,15 +5,22 @@
 
 class BaseLearner{
     public:
+    virtual ~BaseLearner();
+
     virtual void backprop(const tensor&, const tensor&);
     virtual void backprop(const tensor&);
 
     virtual void learn();
     virtual void clear();
+
+    virtual void checkpoint(std::ofstream& f);
+
+    virtual std::string getLearnerType();
 };
 
 class BaseLearnerSelector{
     public:
+    virtual ~BaseLearnerSelector();
     virtual BaseLearner* construct(tensor*);
 };
 

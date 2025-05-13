@@ -103,7 +103,7 @@ TEST_F(NetworkTest, LearningNetworkOutput) {
 
 #ifdef LEARNINGNETWORK_FULLLEARN
 TEST_F(NetworkTest, LearningNetworkFullLearn) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,10}, layers::recursive, activations::Sigmoid, new AdamLearnerSelector(0.01,0.9,0.999))}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid, errors::MSE, new AdamLearnerSelector(0.1,0.9,0.999)), 1, 1231);
+    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,10}, layers::recursive, activations::Sigmoid, new AdamLearnerSelector(0.01,0.9,0.999))}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid, errors::MSE, new AdamLearnerSelector(0.01,0.9,0.999)), 1, 1231);
     
     int n = 50000;
     int k = 8;
@@ -131,6 +131,22 @@ TEST_F(NetworkTest, LearningNetworkFullLearn) {
 
 }
 #endif
+
+TEST_F(NetworkTest, LearningNetworkSave) {
+    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
+    
+    myNetwork.save("savetest");
+
+    learningNetwork myNetwork2("savetest");
+}
+
+TEST_F(NetworkTest, LearningNetworkCheckpoint) {
+    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
+    
+    myNetwork.save("savetest", save::checkpoint);
+
+    ASSERT_THROW(learningNetwork myNetwork2("savetest"), std::runtime_error);
+}
 
 
 }

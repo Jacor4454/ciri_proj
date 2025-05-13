@@ -134,6 +134,25 @@ tensor::tensor(const tensor& t){
     // copy insternal data
     std::memcpy(contents, t.getContents(), N * sizeof(float));
 }
+tensor::tensor(std::ifstream& f){
+    int n;
+    f.read(reinterpret_cast<char*>(&n), sizeof(int));
+
+    dims.resize(n);
+    N = 1;
+    int i_cache;
+    for(int i = 0; i < n; i++){
+        f.read(reinterpret_cast<char*>(&i_cache), sizeof(int));
+        dims[i] = i_cache;
+        N *= i_cache;
+    }
+
+    // allocate insternal data
+    contents = (float*)malloc(N * sizeof(float));
+
+    // read data
+    f.read(reinterpret_cast<char*>(contents), sizeof(float)*N);
+}
 tensor::~tensor(){
     free(contents);
 }
@@ -899,6 +918,22 @@ bool tensor::operator==(const tensor& t){
             return false;
     
     return true;
+}
+
+//saves
+void tensor::save(std::ofstream& f){
+    // write dims size
+    int i_cache = dims.size();
+    f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+
+    // write dims
+    for(int i : dims){
+        i_cache = i;
+        f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+    }
+
+    // write data
+    f.write(reinterpret_cast<const char*>(contents), sizeof(float)*N);
 }
 
 // debug

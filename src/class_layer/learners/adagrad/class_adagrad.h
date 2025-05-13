@@ -18,6 +18,10 @@ class AdagradLearner : public BaseLearner{
 
     void learn();
     void clear();
+    
+    void checkpoint(std::ofstream& f);
+    
+    std::string getLearnerType();
 };
 
 class AdagradLearnerSelector : public BaseLearnerSelector{

@@ -15,6 +15,19 @@ perceptron::perceptron(std::vector<int> in, std::vector<int> out):
     bls = new AlphaLearnerSelector(0.01);
 }
 
+perceptron::perceptron(std::ifstream& f):
+    weightsDims(BaseLayer::loadWeightsDims(f)),
+    weights(f),
+    bias(f),
+    hold(bias.getDims())
+{
+    dweight = nullptr;
+    dbias = nullptr;
+    f.read(reinterpret_cast<char*>(&acc), sizeof(activations::accTypes));
+    bls = new AlphaLearnerSelector(0.01);
+}
+
+
 void perceptron::setAcc(activations::accTypes a){acc = a;}
 
 void perceptron::setLearners(BaseLearnerSelector* bls_){
@@ -39,6 +52,8 @@ perceptron::~perceptron(){
         delete dweight;
     if(dbias != nullptr)
         delete dbias;
+    if(bls != nullptr)
+        delete bls;
 }
 
 void perceptron::forward(tensor& output, const tensor& input){
@@ -86,4 +101,43 @@ void perceptron::clear(){
         dbias->clear();
 }
 
-std::string perceptron::getLayerType(){return "Perceptron";}
+void perceptron::save(std::ofstream& f){
+    // write layer type
+    std::string name = getLayerType();
+    int i_cache = name.size();
+    f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+    f.write(name.c_str(), sizeof(char)*i_cache);
+
+    // write dims size
+    i_cache = weightsDims.size();
+    f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+
+    // write dims
+    for(int i : weightsDims){
+        i_cache = i;
+        f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+    }
+
+    // save tensors
+    weights.save(f);
+    bias.save(f);
+
+    // write acc
+    f.write(reinterpret_cast<const char*>(&acc), sizeof(activations::accTypes));
+
+    // if also checkpoint, store learners and learnerSelectors
+    // will be wrapped
+}
+
+void perceptron::save_checkpoint(std::ofstream& f){
+    if(dweight == nullptr)
+        dweight = bls->construct(&weights);
+    if(dbias == nullptr)
+        dbias = bls->construct(&bias);
+    
+    dweight->checkpoint(f);
+    dbias->checkpoint(f);
+}
+
+std::string perceptron::getLayerTypeStat(){return "Perceptron";}
+std::string perceptron::getLayerType(){return getLayerTypeStat();}

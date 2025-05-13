@@ -57,6 +57,7 @@ class network{
     int N = 0;
     public:
     static BaseLayer* getLayer(layers::layerTypes, std::vector<int>&, std::vector<int>&);
+    static BaseLayer* getLayer(std::ifstream& f);
     network(inputDefObject, std::vector<layerDefObject>, outputDefObject);
     ~network();
 

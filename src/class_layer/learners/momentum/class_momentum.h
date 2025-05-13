@@ -19,6 +19,10 @@ class MomentumLearner : public BaseLearner{
 
     void learn();
     void clear();
+    
+    void checkpoint(std::ofstream& f);
+    
+    std::string getLearnerType();
 };
 
 class MomentumLearnerSelector : public BaseLearnerSelector{

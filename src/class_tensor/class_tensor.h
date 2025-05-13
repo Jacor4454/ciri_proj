@@ -59,6 +59,7 @@ class tensor{
     public:
     tensor(std::vector<int> dims_);
     tensor(const tensor& t);
+    tensor(std::ifstream&);
     ~tensor();
     void cpy(const tensor&);
     void cpy(const std::vector<float>&);
@@ -119,6 +120,9 @@ class tensor{
     float& operator[](const int&);
     const float& operator[](const int&) const;
     bool operator==(const tensor&);
+
+    // saves
+    void save(std::ofstream&);
 
     // debug
     bool nantest() const;

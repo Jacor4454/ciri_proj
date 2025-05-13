@@ -26,6 +26,24 @@ void AdagradLearner::clear(){
     differ.set(0.0);
 }
 
+void AdagradLearner::checkpoint(std::ofstream& f){
+    // write learner type
+    std::string name = getLearnerType();
+    int i_cache = name.size();
+    f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+    f.write(name.c_str(), sizeof(char)*i_cache);
+
+    // write data
+    f.write(reinterpret_cast<const char*>(&alpha), sizeof(float));
+
+    // write tensors
+    meanSquared.save(f);
+}
+
+std::string AdagradLearner::getLearnerType(){
+    return "Adagrad";
+}
+
 
 
 AdagradLearnerSelector::AdagradLearnerSelector(float alpha_):alpha(alpha_){}

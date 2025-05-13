@@ -14,7 +14,7 @@ class LearnerTest : public testing::Test {
 
     LearnerTest() {
         // You can do set-up work for each test here.
-        tensor::threads_setWorkers(1);
+        tensor::threads_setWorkers(4);
         tensor::threads_initaliseThreads();
     }
 
@@ -52,11 +52,16 @@ TEST_F(LearnerTest, alpha) {
     BaseLearnerSelector* ls1 = new AlphaLearnerSelector(0.1);
     BaseLearner* l1 = ls1->construct(&weights);
 
+    ASSERT_EQ(l1->getLearnerType(), "Vanilla");
+
     l1->backprop(dweights);
     l1->learn();
 
     for(int i = 0; i < 6; i++)
         ASSERT_FLOAT_EQ(weights[i], correct[i]);
+
+    delete ls1;
+    delete l1;
 }
 
 TEST_F(LearnerTest, adagrad) {
@@ -71,6 +76,8 @@ TEST_F(LearnerTest, adagrad) {
     BaseLearnerSelector* ls1 = new AdagradLearnerSelector(0.1);
     BaseLearner* l1 = ls1->construct(&weights);
 
+    ASSERT_EQ(l1->getLearnerType(), "Adagrad");
+
     l1->backprop(dweights);
     l1->learn();
 
@@ -83,6 +90,9 @@ TEST_F(LearnerTest, adagrad) {
 
     for(int i = 0; i < 6; i++)
         ASSERT_FLOAT_EQ(weights[i], correct[i]);
+
+    delete ls1;
+    delete l1;
 }
 
 TEST_F(LearnerTest, momentum) {
@@ -96,6 +106,8 @@ TEST_F(LearnerTest, momentum) {
     
     BaseLearnerSelector* ls1 = new MomentumLearnerSelector(0.1, 0.9);
     BaseLearner* l1 = ls1->construct(&weights);
+    
+    ASSERT_EQ(l1->getLearnerType(), "Momentum");
 
     l1->backprop(dweights);
     l1->learn();
@@ -109,6 +121,9 @@ TEST_F(LearnerTest, momentum) {
 
     for(int i = 0; i < 6; i++)
         ASSERT_FLOAT_EQ(weights[i], correct[i]);
+        
+    delete ls1;
+    delete l1;
 }
 
 TEST_F(LearnerTest, adam) {
@@ -122,6 +137,8 @@ TEST_F(LearnerTest, adam) {
     
     BaseLearnerSelector* ls1 = new AdamLearnerSelector(0.1, 0.9, 0.999);
     BaseLearner* l1 = ls1->construct(&weights);
+    
+    ASSERT_EQ(l1->getLearnerType(), "Adam");
 
     l1->backprop(dweights);
     l1->learn();
@@ -134,6 +151,9 @@ TEST_F(LearnerTest, adam) {
 
     for(int i = 0; i < 6; i++)
         ASSERT_FLOAT_EQ(weights[i], correct[i]);
+
+    delete ls1;
+    delete l1;
 }
 
 }

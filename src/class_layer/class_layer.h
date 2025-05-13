@@ -11,6 +11,7 @@ class BaseLayer{
     public:
     static std::vector<int> makeWeightsDims(std::vector<int> in, std::vector<int> out);
     static std::vector<int> makeHWeightsDims(std::vector<int> out);
+    static std::vector<int> loadWeightsDims(std::ifstream& f);
     static std::default_random_engine generator;
 
     virtual void setAcc(activations::accTypes);
@@ -21,9 +22,15 @@ class BaseLayer{
     virtual void backward(tensor&, const tensor&, const tensor&, const tensor&, const tensor&);
     virtual void learn();
     virtual void clear();
+
+    virtual void save(std::ofstream&);
+    virtual void save_checkpoint(std::ofstream&);
     
     virtual std::string getLayerType();
 
 };
+
+#include "./perceptron/class_perceptron.h"
+#include "./recersive/class_recersive.h"
 
 #endif

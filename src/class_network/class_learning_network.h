@@ -4,6 +4,17 @@
 #include "../rest/src/http_server/http_server.h"
 #include "class_network.h"
 
+// always 8 chars
+#define VERSION "00.00.01"
+// always 3 chars
+#define handshake "END"
+namespace save{
+    typedef enum{
+        inference,
+        checkpoint,
+    } savetype;
+}
+
 class learningNetwork {
     private:
     std::vector<BaseLayer*> layers;
@@ -23,12 +34,15 @@ class learningNetwork {
 
     public:
     learningNetwork(inputDefObject, std::vector<layerDefObject>, outputDefObject, int = 1, int = -1);
+    learningNetwork(const std::string&, int = 1, int = -1);
     ~learningNetwork();
     void forward(const std::vector<tensor>& input);
     std::vector<tensor> getOutput();
     void backward(const std::vector<tensor>& correct);
 
     void learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct);
+
+    void save(const std::string&, const save::savetype = save::inference);
 };
 
 

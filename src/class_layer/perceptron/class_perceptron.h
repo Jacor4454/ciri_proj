@@ -16,15 +16,20 @@ class perceptron : public BaseLayer{
 
     public:
     perceptron(std::vector<int>, std::vector<int>);
+    perceptron(std::ifstream&);
     void setAcc(activations::accTypes);
     void setLearners(BaseLearnerSelector*);
-    virtual ~perceptron();
+    ~perceptron();
 
     void forward(tensor&, const tensor&);
     void backward(tensor&, const tensor&, const tensor&, const tensor&, const tensor&);
     void learn();
     void clear();
 
+    void save(std::ofstream&);
+    void save_checkpoint(std::ofstream&);
+
+    static std::string getLayerTypeStat();
     std::string getLayerType();
 };
 

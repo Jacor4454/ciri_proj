@@ -20,6 +20,23 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
     bls = new AlphaLearnerSelector(0.01);
 }
 
+recursive::recursive(std::ifstream& f):
+    weightsDims(BaseLayer::loadWeightsDims(f)),
+    hweightsDims(BaseLayer::loadWeightsDims(f)),
+    weights(f),
+    rWeights(f),
+    bias(f),
+    prev(bias.getDims()),
+    dInt(bias.getDims()),
+    hold(bias.getDims())
+{
+    dweight = nullptr;
+    drweight = nullptr;
+    dbias = nullptr;
+    f.read(reinterpret_cast<char*>(&acc), sizeof(activations::accTypes));
+    bls = new AlphaLearnerSelector(0.01);
+}
+
 void recursive::setAcc(activations::accTypes a){acc = a;}
 
 void recursive::setLearners(BaseLearnerSelector* bls_){
@@ -118,4 +135,57 @@ void recursive::clear(){
     dInt.set(0.0);
 }
 
-std::string recursive::getLayerType(){return "Recersive";}
+void recursive::save(std::ofstream& f){
+    // write layer type
+    std::string name = getLayerType();
+    int i_cache = name.size();
+    f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+    f.write(name.c_str(), sizeof(char)*i_cache);
+
+    // write dims size
+    i_cache = weightsDims.size();
+    f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+
+    // write dims
+    for(int i : weightsDims){
+        i_cache = i;
+        f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+    }
+
+    // write h dims size
+    i_cache = hweightsDims.size();
+    f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+
+    // write h dims
+    for(int i : hweightsDims){
+        i_cache = i;
+        f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
+    }
+
+    // save tensors
+    weights.save(f);
+    rWeights.save(f);
+    bias.save(f);
+    
+    // write acc
+    f.write(reinterpret_cast<const char*>(&acc), sizeof(activations::accTypes));
+
+    // if also checkpoint, store learners and learnerSelectors
+    // will be wrapped
+}
+
+void recursive::save_checkpoint(std::ofstream& f){
+    if(dweight == nullptr)
+        dweight = bls->construct(&weights);
+    if(drweight == nullptr)
+        drweight = bls->construct(&rWeights);
+    if(dbias == nullptr)
+        dbias = bls->construct(&bias);
+    
+    dweight->checkpoint(f);
+    drweight->checkpoint(f);
+    dbias->checkpoint(f);
+}
+
+std::string recursive::getLayerTypeStat(){return "Recersive";}
+std::string recursive::getLayerType(){return getLayerTypeStat();}

@@ -11,12 +11,17 @@ class AlphaLearner : public BaseLearner{
     public:
     tensor differ;
     AlphaLearner(tensor*, float);// takes the tensor the user wants to track
+    ~AlphaLearner();
 
     void backprop(const tensor&, const tensor&);
     void backprop(const tensor&);
 
     void learn();
     void clear();
+    
+    void checkpoint(std::ofstream& f);
+    
+    std::string getLearnerType();
 };
 
 class AlphaLearnerSelector : public BaseLearnerSelector{

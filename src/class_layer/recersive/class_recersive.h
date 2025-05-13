@@ -22,15 +22,20 @@ class recursive : public BaseLayer{
 
     public:
     recursive(std::vector<int>, std::vector<int>);
+    recursive(std::ifstream&);
     void setAcc(activations::accTypes);
     void setLearners(BaseLearnerSelector*);
-    virtual ~recursive();
+    ~recursive();
 
     void forward(tensor&, const tensor&);
     void backward(tensor&, const tensor&, const tensor&, const tensor&,  const tensor&);
     void learn();
     void clear();
 
+    void save(std::ofstream&);
+    void save_checkpoint(std::ofstream&);
+
+    static std::string getLayerTypeStat();
     std::string getLayerType();
 };
 

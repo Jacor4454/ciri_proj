@@ -20,6 +20,10 @@ class AdamLearner : public BaseLearner{
 
     void learn();
     void clear();
+    
+    void checkpoint(std::ofstream& f);
+    
+    std::string getLearnerType();
 };
 
 class AdamLearnerSelector : public BaseLearnerSelector{
