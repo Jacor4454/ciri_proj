@@ -129,9 +129,20 @@ TEST_F(NetworkTest, NetworkFullLearn) {
 TEST_F(NetworkTest, NetworkSave) {
     Network myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
     
-    myNetwork.save("savetest");
+    myNetwork.save("savetest", save::inference);
 
     Network myNetwork2("savetest");
+
+    tensor input({1,2});
+    input.cpy({0,1});
+    
+    myNetwork.forward({input});
+    std::vector<tensor> output = myNetwork.getOutput();
+
+    myNetwork2.forward({input});
+    std::vector<tensor> output2 = myNetwork2.getOutput();
+
+    ASSERT_TRUE(output[0] == output2[0]);
 }
 
 TEST_F(NetworkTest, NetworkCheckpoint) {
