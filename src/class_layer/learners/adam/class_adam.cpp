@@ -17,6 +17,17 @@ AdamLearner::AdamLearner(tensor* orr, float alpha_, float beta1_, float beta2_):
     velocity.set(0.0); // only set once
 }
 
+AdamLearner::AdamLearner(tensor* orr, std::ifstream& f):
+differ(*orr),
+momentum(f),
+velocity(f)
+{
+    alphas = (float*)malloc(sizeof(float)*5);
+    original = orr;
+    f.read(reinterpret_cast<char*>(alphas), sizeof(int)*5);
+    differ.set(0.0);
+}
+
 AdamLearner::~AdamLearner(){
     free(alphas);
 }
@@ -48,17 +59,21 @@ void AdamLearner::checkpoint(std::ofstream& f){
     f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
     f.write(name.c_str(), sizeof(char)*i_cache);
 
-    // write data
-    f.write(reinterpret_cast<const char*>(alphas), sizeof(float)*5);
-
     // write tensors
     momentum.save(f);
     velocity.save(f);
+
+    // write data
+    f.write(reinterpret_cast<const char*>(alphas), sizeof(float)*5);
 }
 
 std::string AdamLearner::getLearnerType(){
+    return getStaticLearnerType();
+}
+std::string AdamLearner::getStaticLearnerType(){
     return "Adam";
 }
+
 
 
 

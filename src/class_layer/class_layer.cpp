@@ -45,6 +45,7 @@ void BaseLayer::clear(){throw std::runtime_error("cannot clear base layer");}
 
 void BaseLayer::save(std::ofstream&){throw std::runtime_error("cannot save base layer");}
 void BaseLayer::save_checkpoint(std::ofstream&){throw std::runtime_error("cannot save base layer");}
+void BaseLayer::load_checkpoint(std::ifstream&){throw std::runtime_error("cannot load base layer");}
 
 // return layer type name
 std::string BaseLayer::getLayerType(){return "Base";}

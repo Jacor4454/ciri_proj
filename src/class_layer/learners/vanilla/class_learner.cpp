@@ -8,6 +8,14 @@ AlphaLearner::AlphaLearner(tensor* orr, float alpha_):
     differ.set(0.0);
 }
 
+AlphaLearner::AlphaLearner(tensor* orr, std::ifstream& f):
+    differ(*orr)
+{
+    original = orr;
+    f.read(reinterpret_cast<char*>(&alpha), sizeof(int));
+    differ.set(0.0);
+}
+
 AlphaLearner::~AlphaLearner(){}
 
 void AlphaLearner::backprop(const tensor& a, const tensor& b){
@@ -38,6 +46,9 @@ void AlphaLearner::checkpoint(std::ofstream& f){
 }
 
 std::string AlphaLearner::getLearnerType(){
+    return getStaticLearnerType();
+}
+std::string AlphaLearner::getStaticLearnerType(){
     return "Vanilla";
 }
 

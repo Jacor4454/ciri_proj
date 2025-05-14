@@ -12,6 +12,7 @@ class MomentumLearner : public BaseLearner{
 
     public:
     MomentumLearner(tensor*, float, float);// takes the tensor the user wants to track
+    MomentumLearner(tensor*, std::ifstream&);
     ~MomentumLearner();
 
     void backprop(const tensor&, const tensor&);
@@ -23,6 +24,7 @@ class MomentumLearner : public BaseLearner{
     void checkpoint(std::ofstream& f);
     
     std::string getLearnerType();
+    static std::string getStaticLearnerType();
 };
 
 class MomentumLearnerSelector : public BaseLearnerSelector{

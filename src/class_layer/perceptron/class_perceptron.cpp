@@ -139,5 +139,15 @@ void perceptron::save_checkpoint(std::ofstream& f){
     dbias->checkpoint(f);
 }
 
+void perceptron::load_checkpoint(std::ifstream& f){
+    if(dweight != nullptr)
+        delete dweight;
+    if(dbias != nullptr)
+        delete dbias;
+    
+    dweight = BaseLearnerSelector::load(&weights, f);
+    dbias = BaseLearnerSelector::load(&bias, f);
+}
+
 std::string perceptron::getLayerTypeStat(){return "Perceptron";}
 std::string perceptron::getLayerType(){return getLayerTypeStat();}

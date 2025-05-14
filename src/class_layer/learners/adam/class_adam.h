@@ -13,6 +13,7 @@ class AdamLearner : public BaseLearner{
 
     public:
     AdamLearner(tensor*, float, float, float);// takes the tensor the user wants to track
+    AdamLearner(tensor*, std::ifstream&);
     ~AdamLearner();
 
     void backprop(const tensor&, const tensor&);
@@ -24,6 +25,7 @@ class AdamLearner : public BaseLearner{
     void checkpoint(std::ofstream& f);
     
     std::string getLearnerType();
+    static std::string getStaticLearnerType();
 };
 
 class AdamLearnerSelector : public BaseLearnerSelector{

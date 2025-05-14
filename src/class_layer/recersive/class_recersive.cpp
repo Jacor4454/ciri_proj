@@ -4,8 +4,8 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
     weightsDims(BaseLayer::makeWeightsDims(in, out)),
     hweightsDims(BaseLayer::makeHWeightsDims(out)),
     weights(weightsDims),
-    bias(out),
     rWeights(hweightsDims),
+    bias(out),
     prev(out),
     dInt(out),
     hold(out)
@@ -185,6 +185,19 @@ void recursive::save_checkpoint(std::ofstream& f){
     dweight->checkpoint(f);
     drweight->checkpoint(f);
     dbias->checkpoint(f);
+}
+
+void recursive::load_checkpoint(std::ifstream& f){
+    if(dweight != nullptr)
+        delete dweight;
+    if(drweight != nullptr)
+        delete drweight;
+    if(dbias != nullptr)
+        delete dbias;
+    
+    dweight = BaseLearnerSelector::load(&weights, f);
+    drweight = BaseLearnerSelector::load(&rWeights, f);
+    dbias = BaseLearnerSelector::load(&bias, f);
 }
 
 std::string recursive::getLayerTypeStat(){return "Recersive";}

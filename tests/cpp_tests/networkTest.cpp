@@ -139,7 +139,33 @@ TEST_F(NetworkTest, NetworkCheckpoint) {
     
     myNetwork.save("savetest", save::checkpoint);
 
-    ASSERT_THROW(Network myNetwork2("savetest"), std::runtime_error);
+    Network myNetwork2("savetest");
+
+    // some sort of comparison between network 1 and 2
+
+    tensor input({1,2});
+    input.cpy({0,1});
+    tensor correct({1,1});
+    correct.cpy({1});
+
+    // make sure learn is the same
+    myNetwork.learn({{input}}, {{correct}});
+    std::vector<tensor> output = myNetwork.getOutput();
+
+    myNetwork2.learn({{input}}, {{correct}});
+    std::vector<tensor> output2 = myNetwork2.getOutput();
+
+    ASSERT_TRUE(output[0] == output2[0]);
+
+
+    // make sure forward in still correct, showing whole sequence is the same
+    myNetwork.forward({input});
+    output = myNetwork.getOutput();
+
+    myNetwork2.forward({input});
+    output2 = myNetwork2.getOutput();
+
+    ASSERT_TRUE(output[0] == output2[0]);
 }
 
 

@@ -12,6 +12,7 @@ class AdagradLearner : public BaseLearner{
 
     public:
     AdagradLearner(tensor*, float);// takes the tensor the user wants to track
+    AdagradLearner(tensor*, std::ifstream&);
 
     void backprop(const tensor&, const tensor&);
     void backprop(const tensor&);
@@ -22,6 +23,7 @@ class AdagradLearner : public BaseLearner{
     void checkpoint(std::ofstream& f);
     
     std::string getLearnerType();
+    static std::string getStaticLearnerType();
 };
 
 class AdagradLearnerSelector : public BaseLearnerSelector{

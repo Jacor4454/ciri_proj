@@ -12,6 +12,16 @@ MomentumLearner::MomentumLearner(tensor* orr, float alpha_, float beta_):
     meanSquared.set(0.0); // only set once
 }
 
+MomentumLearner::MomentumLearner(tensor* orr, std::ifstream& f):
+differ(*orr),
+meanSquared(f)
+{
+    alphas = (float*)malloc(sizeof(float)*2);
+    original = orr;
+    f.read(reinterpret_cast<char*>(alphas), sizeof(int)*2);
+    differ.set(0.0);
+}
+
 MomentumLearner::~MomentumLearner(){
     free(alphas);
 }
@@ -39,17 +49,19 @@ void MomentumLearner::checkpoint(std::ofstream& f){
     f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
     f.write(name.c_str(), sizeof(char)*i_cache);
 
-    // write data
-    f.write(reinterpret_cast<const char*>(alphas), sizeof(float)*2);
-
     // write tensors
     meanSquared.save(f);
+
+    // write data
+    f.write(reinterpret_cast<const char*>(alphas), sizeof(float)*2);
 }
 
 std::string MomentumLearner::getLearnerType(){
+    return getStaticLearnerType();
+}
+std::string MomentumLearner::getStaticLearnerType(){
     return "Momentum";
 }
-
 
 MomentumLearnerSelector::MomentumLearnerSelector(float alpha_, float beta_):alpha(alpha_),beta(beta_){}
 BaseLearner* MomentumLearnerSelector::construct(tensor* t){return new MomentumLearner(t, alpha, beta);}

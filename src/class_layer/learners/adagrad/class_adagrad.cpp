@@ -10,6 +10,15 @@ AdagradLearner::AdagradLearner(tensor* orr, float alpha_):
     meanSquared.set(0.0); // only set once
 }
 
+AdagradLearner::AdagradLearner(tensor* orr, std::ifstream& f):
+differ(*orr),
+meanSquared(f)
+{
+    original = orr;
+    f.read(reinterpret_cast<char*>(&alpha), sizeof(int));
+    differ.set(0.0);
+}
+
 void AdagradLearner::backprop(const tensor& a, const tensor& b){
     a.fastDeMultLInc(differ, b);
 }
@@ -33,14 +42,17 @@ void AdagradLearner::checkpoint(std::ofstream& f){
     f.write(reinterpret_cast<const char*>(&i_cache), sizeof(int));
     f.write(name.c_str(), sizeof(char)*i_cache);
 
-    // write data
-    f.write(reinterpret_cast<const char*>(&alpha), sizeof(float));
-
     // write tensors
     meanSquared.save(f);
+
+    // write data
+    f.write(reinterpret_cast<const char*>(&alpha), sizeof(float));
 }
 
 std::string AdagradLearner::getLearnerType(){
+    return getStaticLearnerType();
+}
+std::string AdagradLearner::getStaticLearnerType(){
     return "Adagrad";
 }
 

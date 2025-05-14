@@ -8,8 +8,8 @@ class recursive : public BaseLayer{
     std::vector<int> weightsDims;
     std::vector<int> hweightsDims;
     tensor weights;
-    tensor bias;
     tensor rWeights;
+    tensor bias;
     BaseLearner* dweight;
     BaseLearner* drweight;
     BaseLearner* dbias;
@@ -34,6 +34,7 @@ class recursive : public BaseLayer{
 
     void save(std::ofstream&);
     void save_checkpoint(std::ofstream&);
+    void load_checkpoint(std::ifstream&);
 
     static std::string getLayerTypeStat();
     std::string getLayerType();

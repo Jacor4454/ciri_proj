@@ -22,6 +22,7 @@ class BaseLearnerSelector{
     public:
     virtual ~BaseLearnerSelector();
     virtual BaseLearner* construct(tensor*);
+    static BaseLearner* load(tensor*, std::ifstream&);
 };
 
 #include "vanilla/class_learner.h"

@@ -131,14 +131,32 @@ myServ("0.0.0.0", port)
     for(int i = 0; i < N; i++)
         layers[i] = getLayer(f);
 
+    lossType = errors::MSE;
+    
+    if(c == 'C'){
+        // also load checkpointing
+
+        // get currMaxItt etc
+        f.read(reinterpret_cast<char*>(&currMaxItt), sizeof(int));
+        f.read(reinterpret_cast<char*>(&lastItt), sizeof(int));
+        f.read(reinterpret_cast<char*>(&lossType), sizeof(errors::errTypes));
+
+        for(BaseLayer* blp : layers){
+            blp->load_checkpoint(f);
+        }
+    }
+
     char enln[4] = {0};
     f.read(enln, sizeof(char)*3);
-
-    if(strcmp(enln, handshake) != 0)
-        throw std::runtime_error("version mismatch");
-
+    
+    // stop loading
     f.close();
 
+    // throw if load was corrupted/erranous
+    if(strcmp(enln, handshake) != 0)
+        throw std::runtime_error("version mismatch");
+    
+    // initialise other vars
     for(auto& v : dimss)
         for(int i = 0; i < currMaxItt+1; i++)
             tss[i].push_back(tensor(v));
@@ -330,12 +348,14 @@ void Network::save(const std::string& s, const save::savetype st){
         blp->save(f);
     }
 
+    // if saving an inference, stop
     if(st == save::inference){
         f.write(handshake, sizeof(char)*3);
         f.close();
         return;
     }
 
+    // write currMaxItt
     f.write(reinterpret_cast<const char*>(&currMaxItt), sizeof(int));
     f.write(reinterpret_cast<const char*>(&lastItt), sizeof(int));
     f.write(reinterpret_cast<const char*>(&lossType), sizeof(errors::errTypes));

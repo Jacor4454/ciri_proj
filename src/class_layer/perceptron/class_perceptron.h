@@ -28,6 +28,7 @@ class perceptron : public BaseLayer{
 
     void save(std::ofstream&);
     void save_checkpoint(std::ofstream&);
+    void load_checkpoint(std::ifstream&);
 
     static std::string getLayerTypeStat();
     std::string getLayerType();

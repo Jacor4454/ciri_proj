@@ -25,6 +25,7 @@ class BaseLayer{
 
     virtual void save(std::ofstream&);
     virtual void save_checkpoint(std::ofstream&);
+    virtual void load_checkpoint(std::ifstream&);
     
     virtual std::string getLayerType();
 
