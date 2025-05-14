@@ -2,7 +2,53 @@
 #define CLASS_LEARNING_NETWORK_H
 
 #include "../rest/src/http_server/http_server.h"
-#include "class_network.h"
+
+#include "../class_layer/class_layer.h"
+#include "../class_layer/perceptron/class_perceptron.h"
+#include "../class_layer/recersive/class_recersive.h"
+
+namespace layers {
+    typedef enum {
+        perceptron,
+        recursive,
+    } layerTypes;
+}
+
+class inputDefObject {
+    private:
+    std::vector<int> inputDims;
+    public:
+    inputDefObject(std::vector<int> i):inputDims(i){}
+    std::vector<int> getDims(){return inputDims;}
+};
+class layerDefObject {
+    private:
+    std::vector<int> outputDims;
+    layers::layerTypes lyrTyp;
+    activations::accTypes accTyp;
+    BaseLearnerSelector* oppTyp;
+    public:
+    layerDefObject(std::vector<int> o, layers::layerTypes lyrTyp_, activations::accTypes accTyp_, BaseLearnerSelector* oppTyp_=nullptr):outputDims(o){lyrTyp = lyrTyp_; accTyp = accTyp_; oppTyp = oppTyp_;}
+    std::vector<int> getDims(){return outputDims;}
+    layers::layerTypes getLyrTyp(){return lyrTyp;}
+    activations::accTypes getAccTyp(){return accTyp;}
+    BaseLearnerSelector* getOppTyp(){return oppTyp;}
+};
+class outputDefObject {
+    private:
+    std::vector<int> outputDims;
+    layers::layerTypes lyrTyp;
+    activations::accTypes accTyp;
+    errors::errTypes errTyp;
+    BaseLearnerSelector* oppTyp;
+    public:
+    outputDefObject(std::vector<int> o, layers::layerTypes lyrTyp_, activations::accTypes accTyp_, errors::errTypes errTyp_=errors::SE, BaseLearnerSelector* oppTyp_=nullptr):outputDims(o){lyrTyp = lyrTyp_; accTyp = accTyp_; errTyp = errTyp_; oppTyp = oppTyp_;}
+    std::vector<int> getDims(){return outputDims;}
+    layers::layerTypes getLyrTyp(){return lyrTyp;}
+    activations::accTypes getAccTyp(){return accTyp;}
+    errors::errTypes getErrTyp(){return errTyp;}
+    BaseLearnerSelector* getOppTyp(){return oppTyp;}
+};
 
 // always 8 chars
 #define VERSION "00.00.01"
@@ -15,7 +61,7 @@ namespace save{
     } savetype;
 }
 
-class learningNetwork {
+class Network {
     private:
     std::vector<BaseLayer*> layers;
     std::vector<std::vector<int>> dimss;
@@ -33,9 +79,9 @@ class learningNetwork {
     void resizeItt(int newCurr);
 
     public:
-    learningNetwork(inputDefObject, std::vector<layerDefObject>, outputDefObject, int = 1, int = -1);
-    learningNetwork(const std::string&, int = 1, int = -1);
-    ~learningNetwork();
+    Network(inputDefObject, std::vector<layerDefObject>, outputDefObject, int = 1, int = -1);
+    Network(const std::string&, int = 1, int = -1);
+    ~Network();
     void forward(const std::vector<tensor>& input);
     std::vector<tensor> getOutput();
     void backward(const std::vector<tensor>& correct);

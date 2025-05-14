@@ -42,13 +42,7 @@ class NetworkTest : public testing::Test {
 };
 
 TEST_F(NetworkTest, MakeNetwork) {
-    network myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid));
-    tensor myTensor1({1, 784});
-    myNetwork.forward({myTensor1});
-}
-
-TEST_F(NetworkTest, MakeLearningNetwork) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 2);
+    Network myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 2);
     tensor myTensor1a({1, 784});
     tensor myTensor1b({1, 784});
     myNetwork.forward({myTensor1a, myTensor1b});
@@ -57,8 +51,8 @@ TEST_F(NetworkTest, MakeLearningNetwork) {
     myNetwork.backward({myTensor2a, myTensor2b});
 }
 
-TEST_F(NetworkTest, LearningNetworkResize) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
+TEST_F(NetworkTest, NetworkResize) {
+    Network myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
     tensor myTensor1a({1, 784});
     tensor myTensor1b({1, 784});
     myNetwork.forward({myTensor1a, myTensor1b}); // resizes from 1 to 2, should throw no errors
@@ -68,8 +62,8 @@ TEST_F(NetworkTest, LearningNetworkResize) {
     myNetwork.backward({myTensor2a, myTensor2b}); // but this will pass
 }
 
-TEST_F(NetworkTest, LearningNetworkLearn) {
-    learningNetwork myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
+TEST_F(NetworkTest, NetworkLearn) {
+    Network myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
     tensor myTensor1a({1, 784});
     tensor myTensor1b({1, 784});
     tensor myTensor2a({1, 10});
@@ -77,8 +71,8 @@ TEST_F(NetworkTest, LearningNetworkLearn) {
     myNetwork.learn({{myTensor1a, myTensor1b}}, {{myTensor2a, myTensor2b}});
 }
 
-TEST_F(NetworkTest, LearningNetworkOutput) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
+TEST_F(NetworkTest, NetworkOutput) {
+    Network myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
     
     int k = 8;
 
@@ -101,9 +95,9 @@ TEST_F(NetworkTest, LearningNetworkOutput) {
     myNetwork.learn(input, correct);
 }
 
-#ifdef LEARNINGNETWORK_FULLLEARN
-TEST_F(NetworkTest, LearningNetworkFullLearn) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,10}, layers::recursive, activations::Sigmoid, new AdamLearnerSelector(0.01,0.9,0.999))}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid, errors::MSE, new AdamLearnerSelector(0.01,0.9,0.999)), 1, 1231);
+#ifdef NETWORK_FULLLEARN
+TEST_F(NetworkTest, NetworkFullLearn) {
+    Network myNetwork(inputDefObject({1,2}), {layerDefObject({1,10}, layers::recursive, activations::Sigmoid, new AdamLearnerSelector(0.01,0.9,0.999))}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid, errors::MSE, new AdamLearnerSelector(0.01,0.9,0.999)), 1, 1231);
     
     int n = 50000;
     int k = 8;
@@ -132,20 +126,20 @@ TEST_F(NetworkTest, LearningNetworkFullLearn) {
 }
 #endif
 
-TEST_F(NetworkTest, LearningNetworkSave) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
+TEST_F(NetworkTest, NetworkSave) {
+    Network myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
     
     myNetwork.save("savetest");
 
-    learningNetwork myNetwork2("savetest");
+    Network myNetwork2("savetest");
 }
 
-TEST_F(NetworkTest, LearningNetworkCheckpoint) {
-    learningNetwork myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
+TEST_F(NetworkTest, NetworkCheckpoint) {
+    Network myNetwork(inputDefObject({1,2}), {layerDefObject({1,20}, layers::recursive, activations::ReLU)}, outputDefObject({1,1}, layers::perceptron, activations::Sigmoid), 1);
     
     myNetwork.save("savetest", save::checkpoint);
 
-    ASSERT_THROW(learningNetwork myNetwork2("savetest"), std::runtime_error);
+    ASSERT_THROW(Network myNetwork2("savetest"), std::runtime_error);
 }
 
 

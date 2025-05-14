@@ -1,11 +1,46 @@
 #include "class_learning_network.h"
 
+// netowrk construction helper to get the network from template
+BaseLayer* getLayer(layers::layerTypes l, std::vector<int>& in, std::vector<int>& out){
+    BaseLayer* output = nullptr;
+    switch(l){
+        case layers::perceptron:
+            output = new perceptron(in, out);
+            break;
+        case layers::recursive:
+            output = new recursive(in, out);
+            break;
+        default:
+            throw std::runtime_error("layer not implemented in network constructor");
+    }
+    return output;
+}
+
+BaseLayer* getLayer(std::ifstream& f){
+    int n;
+    f.read(reinterpret_cast<char*>(&n), sizeof(int));
+
+    std::stringstream ss;
+    char c;
+    for(int i = 0; i < n; i++){
+        f.read(&c, sizeof(char));
+        ss << c;
+    }
+
+    if(ss.str() == perceptron::getLayerTypeStat())
+            return new perceptron(f);
+    if(ss.str() == recursive::getLayerTypeStat())
+            return new recursive(f);
+    
+    throw std::runtime_error("layer not implemented in network constructor");
+}
+
 void handler(bool* keepAlive, HTTPServer* s){
     while(*keepAlive)
         (*s).handleCon();
 }
 
-learningNetwork::learningNetwork(inputDefObject i, std::vector<layerDefObject> ls, outputDefObject o, int maxItt, int port):
+Network::Network(inputDefObject i, std::vector<layerDefObject> ls, outputDefObject o, int maxItt, int port):
 myServ("0.0.0.0", port)
 {
     // get network size and expand/reserve
@@ -22,12 +57,12 @@ myServ("0.0.0.0", port)
     dimss[0] = i.getDims();
     for(int i = 0; i < N-1; i++){
         dimss[i+1] = ls[i].getDims();
-        layers[i] = network::getLayer(ls[i].getLyrTyp(), dimss[i], dimss[i+1]);
+        layers[i] = getLayer(ls[i].getLyrTyp(), dimss[i], dimss[i+1]);
         layers[i]->setAcc(ls[i].getAccTyp());
         layers[i]->setLearners(ls[i].getOppTyp());
     }
     dimss[N] = o.getDims();
-    layers[N-1] = network::getLayer(o.getLyrTyp(), dimss[N-1], dimss[N]);
+    layers[N-1] = getLayer(o.getLyrTyp(), dimss[N-1], dimss[N]);
     layers[N-1]->setAcc(o.getAccTyp());
     layers[N-1]->setLearners(o.getOppTyp());
 
@@ -55,7 +90,7 @@ myServ("0.0.0.0", port)
     }
 }
 
-learningNetwork::learningNetwork(const std::string& s, int maxItt, int port):
+Network::Network(const std::string& s, int maxItt, int port):
 myServ("0.0.0.0", port)
 {
     std::ifstream f(s + ".cir", std::ios::binary);
@@ -94,7 +129,7 @@ myServ("0.0.0.0", port)
     }
 
     for(int i = 0; i < N; i++)
-        layers[i] = network::getLayer(f);
+        layers[i] = getLayer(f);
 
     char enln[4] = {0};
     f.read(enln, sizeof(char)*3);
@@ -126,7 +161,7 @@ myServ("0.0.0.0", port)
 
 }
 
-learningNetwork::~learningNetwork(){
+Network::~Network(){
     // stop webpage thread
     if(keepServerAlive){
         keepServerAlive = false;
@@ -140,7 +175,7 @@ learningNetwork::~learningNetwork(){
             delete layers[i];
 }
 
-void learningNetwork::resizeItt(int newCurr){
+void Network::resizeItt(int newCurr){
     // check input (no throw here)
     if(newCurr <= currMaxItt)
         return;
@@ -158,7 +193,7 @@ void learningNetwork::resizeItt(int newCurr){
     currMaxItt = newCurr;
 }
 
-void learningNetwork::forward(const std::vector<tensor>& input){
+void Network::forward(const std::vector<tensor>& input){
     int itts = input.size();
     lastItt = itts;
 
@@ -177,7 +212,7 @@ void learningNetwork::forward(const std::vector<tensor>& input){
     }
 }
 
-std::vector<tensor> learningNetwork::getOutput(){
+std::vector<tensor> Network::getOutput(){
     std::vector<tensor> output(lastItt, tensor({}));
 
     for(int i = 0; i < lastItt; i++)
@@ -186,7 +221,7 @@ std::vector<tensor> learningNetwork::getOutput(){
     return output;
 }
 
-void learningNetwork::backward(const std::vector<tensor>& correct){
+void Network::backward(const std::vector<tensor>& correct){
     int itts = correct.size();
 
     if(itts != lastItt)
@@ -230,7 +265,7 @@ std::string convArrToStr(std::vector<int> data){
     return ss.str();
 }
 
-void learningNetwork::learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct){
+void Network::learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct){
     if(input.size() != correct.size())
         throw std::runtime_error("input and lable have different ammounts of data");
 
@@ -267,7 +302,7 @@ void learningNetwork::learn(const std::vector<std::vector<tensor>>& input, const
     }
 }
 
-void learningNetwork::save(const std::string& s, const save::savetype st){
+void Network::save(const std::string& s, const save::savetype st){
     std::ofstream f(s + ".cir", std::ios::binary);
 
     // write version
