@@ -86,7 +86,8 @@ class Network {
     std::vector<tensor> getOutput();
     void backward(const std::vector<tensor>& correct);
 
-    void learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct);
+    void learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct, std::function<bool(const tensor&, const tensor&)> eval = [](const tensor& t, const tensor& c){for(int i = 0; i < t.getN(); i++)if(std::round(t[i]) != c[i])return false; return true;});
+    std::vector<tensor> inference(const std::vector<tensor>& input);
 
     void save(const std::string&, const save::savetype = save::inference);
 };

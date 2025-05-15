@@ -283,7 +283,7 @@ std::string convArrToStr(std::vector<int> data){
     return ss.str();
 }
 
-void Network::learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct){
+void Network::learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct, std::function<bool(const tensor&, const tensor&)> eval){
     if(input.size() != correct.size())
         throw std::runtime_error("input and lable have different ammounts of data");
 
@@ -307,9 +307,9 @@ void Network::learn(const std::vector<std::vector<tensor>>& input, const std::ve
         std::vector<tensor> output = getOutput();
         bool corr = true;
         for(int k = 0; k < output.size(); k++)
-            for(int j = 0; j < output[k].getN(); j++)
-                if(std::round(output[k][j]) != correct[i][k][j])
-                    corr = false;
+            if(!eval(output[k], correct[i][k]))
+                corr = false;
+        
         if(corr)
             per++;
         if(i%100 == 99){
@@ -318,6 +318,11 @@ void Network::learn(const std::vector<std::vector<tensor>>& input, const std::ve
             per = 0;
         }
     }
+}
+
+std::vector<tensor> Network::inference(const std::vector<tensor>& input){
+    forward(input);
+    return getOutput();
 }
 
 void Network::save(const std::string& s, const save::savetype st){
