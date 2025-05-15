@@ -1,14 +1,14 @@
 #include "class_learning_network.h"
 
 // netowrk construction helper to get the network from template
-BaseLayer* getLayer(layers::layerTypes l, std::vector<int>& in, std::vector<int>& out){
+BaseLayer* getLayer(layers::layerTypes l, std::vector<int>& in, std::vector<int>& out, activations::accTypes acc){
     BaseLayer* output = nullptr;
     switch(l){
         case layers::perceptron:
-            output = new perceptron(in, out);
+            output = new perceptron(in, out, acc);
             break;
         case layers::recursive:
-            output = new recursive(in, out);
+            output = new recursive(in, out, acc);
             break;
         default:
             throw std::runtime_error("layer not implemented in network constructor");
@@ -57,13 +57,11 @@ myServ("0.0.0.0", port)
     dimss[0] = i.getDims();
     for(int i = 0; i < N-1; i++){
         dimss[i+1] = ls[i].getDims();
-        layers[i] = getLayer(ls[i].getLyrTyp(), dimss[i], dimss[i+1]);
-        layers[i]->setAcc(ls[i].getAccTyp());
+        layers[i] = getLayer(ls[i].getLyrTyp(), dimss[i], dimss[i+1], ls[i].getAccTyp());
         layers[i]->setLearners(ls[i].getOppTyp());
     }
     dimss[N] = o.getDims();
-    layers[N-1] = getLayer(o.getLyrTyp(), dimss[N-1], dimss[N]);
-    layers[N-1]->setAcc(o.getAccTyp());
+    layers[N-1] = getLayer(o.getLyrTyp(), dimss[N-1], dimss[N], o.getAccTyp());
     layers[N-1]->setLearners(o.getOppTyp());
 
     lossType = o.getErrTyp();
@@ -297,6 +295,7 @@ void Network::learn(const std::vector<std::vector<tensor>>& input, const std::ve
     Responce::JSON* json = new Responce::JSON();
     (*json)["data"] = convArrToStr(correctPredictions);
     (*json)["length"] = std::to_string((int) n/100);
+    (*json)["loss"] = "999";
     myServ.addAPI("/data.json", json, GET);
 
     int per = 0;
@@ -316,6 +315,10 @@ void Network::learn(const std::vector<std::vector<tensor>>& input, const std::ve
             correctPredictions[i/100] = per;
             (*json)["data"] = convArrToStr(correctPredictions);
             per = 0;
+            float f = 0;
+            for(int j = 0; j < output.size(); j++)
+                f += output[j].loss(correct[i][j], lossType);
+            (*json)["loss"] = std::to_string(f);
         }
     }
 }

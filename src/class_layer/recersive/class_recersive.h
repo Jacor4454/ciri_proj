@@ -21,7 +21,7 @@ class recursive : public BaseLayer{
     
 
     public:
-    recursive(std::vector<int>, std::vector<int>);
+    recursive(std::vector<int>, std::vector<int>, activations::accTypes = activations::ReLU);
     recursive(std::ifstream&);
     void setAcc(activations::accTypes);
     void setLearners(BaseLearnerSelector*);

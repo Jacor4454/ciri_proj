@@ -9,6 +9,8 @@
         </script>
 
         <h1>live training data</h1>
+
+        <p>loss:<p id="loss"></p></p>
         
         <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
         
@@ -52,13 +54,14 @@
                     })
                     .then(data => {
                         addData([...Array(data.length).keys()], data.data);
+                        document.getElementById("loss").innerHTML = data.loss;
                     })  
                     .catch(error => console.error('Failed to fetch data:', error)); 
             }
             fetchJSONData();
             setInterval(() => {
                 fetchJSONData();
-            }, 1500);
+            }, 100);
         </script>
     </body>
 </html>

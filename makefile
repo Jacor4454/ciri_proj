@@ -8,12 +8,16 @@ NETWORKDIR=./src/class_network/
 TESTDIR=./tests/cpp_tests/
 RESTDIR=./src/rest/
 
-project: class_tensor.o main.o
-	$(COMPILER) $(CPPFLAGS) -o a $(OBJDIR)main.o $(OBJDIR)class_tensor.o
+project: object main.o
+	$(COMPILER) $(CPPFLAGS) -o a $(OBJDIR)main.o ciri.o
+	./a
 
-test: test.o class_tensor.o class_layers.o class_learners.o class_learning_network.o rest.o
-	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o b $(OBJDIR)test.o $(RESTDIR)rest.o $(OBJDIR)class_learners.o $(OBJDIR)class_tensor.o $(OBJDIR)class_layers.o $(OBJDIR)class_learning_network.o /usr/lib/libgtest.a
+test: test.o object
+	$(COMPILER) $(CPPFLAGS) -Wall -g -pthread -o b $(OBJDIR)test.o ciri.o /usr/lib/libgtest.a
 	./b
+
+object: class_tensor.o class_layers.o class_learners.o class_learning_network.o rest.o
+	ld -r -o ciri.o $(RESTDIR)rest.o $(OBJDIR)class_learners.o $(OBJDIR)class_tensor.o $(OBJDIR)class_layers.o $(OBJDIR)class_learning_network.o
 
 clean:
 	rm ./objects/*
