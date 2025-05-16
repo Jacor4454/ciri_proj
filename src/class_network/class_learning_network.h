@@ -7,6 +7,8 @@
 #include "../class_layer/perceptron/class_perceptron.h"
 #include "../class_layer/recersive/class_recersive.h"
 
+#include "class_data_obj.h"
+
 namespace layers {
     typedef enum {
         perceptron,
@@ -86,7 +88,7 @@ class Network {
     std::vector<tensor> getOutput();
     void backward(const std::vector<tensor>& correct);
 
-    void learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct, std::function<bool(const tensor&, const tensor&)> eval = [](const tensor& t, const tensor& c){for(int i = 0; i < t.getN(); i++)if(std::round(t[i]) != c[i])return false; return true;});
+    void learn(learning_data&);
     std::vector<tensor> inference(const std::vector<tensor>& input);
 
     void save(const std::string&, const save::savetype = save::inference);
