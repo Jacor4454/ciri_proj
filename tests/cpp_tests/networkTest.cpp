@@ -64,11 +64,8 @@ TEST_F(NetworkTest, NetworkResize) {
 
 TEST_F(NetworkTest, NetworkLearn) {
     Network myNetwork(inputDefObject({1,784}), {layerDefObject({1,150}, layers::recursive, activations::ReLU)}, outputDefObject({1,10}, layers::perceptron, activations::Sigmoid), 1);
-    tensor myTensor1a({1, 784});
-    tensor myTensor1b({1, 784});
-    tensor myTensor2a({1, 10});
-    tensor myTensor2b({1, 10});
-    myNetwork.learn({{myTensor1a, myTensor1b}}, {{myTensor2a, myTensor2b}});
+    learning_data data({1, 784}, {1, 10}, 1, 2);
+    myNetwork.learn(data);
 }
 
 TEST_F(NetworkTest, NetworkOutput) {
@@ -76,23 +73,22 @@ TEST_F(NetworkTest, NetworkOutput) {
     
     int k = 8;
 
-    std::vector<std::vector<tensor>> input(1, std::vector<tensor>(8, tensor({1, 2})));
-    std::vector<std::vector<tensor>> correct(1, std::vector<tensor>(8, tensor({1, 1})));
+    learning_data data({1, 2}, {1, 1}, 1, k);
 
     int val = rand() & ((1<<(k-1))-1);
     int val2 = rand() & ((1<<(k-1))-1);
     int valc = val+val2;
     for(int j = 0; j < k; j++){
-        input[0][j][0] = val & 1;
-        input[0][j][1] = val2 & 1;
-        correct[0][j][0] = valc & 1;
+        data.input[0][j][0] = val & 1;
+        data.input[0][j][1] = val2 & 1;
+        data.correct[0][j][0] = valc & 1;
 
         val >>= 1;
         val2 >>= 1;
         valc >>= 1;
     }
 
-    myNetwork.learn(input, correct);
+    myNetwork.learn(data);
 }
 
 #ifdef NETWORK_FULLLEARN
@@ -102,8 +98,7 @@ TEST_F(NetworkTest, NetworkFullLearn) {
     int n = 50000;
     int k = 8;
 
-    std::vector<std::vector<tensor>> input(n, std::vector<tensor>(k, tensor({1, 2})));
-    std::vector<std::vector<tensor>> correct(n, std::vector<tensor>(k, tensor({1, 1})));
+    learning_data data({1,2},{1,1},n,k);
 
     for(int i = 0; i < n; i++){
         int val = rand() & ((1<<(k-1))-1);
@@ -111,9 +106,9 @@ TEST_F(NetworkTest, NetworkFullLearn) {
         int valc = val+val2;
         
         for(int j = 0; j < k; j++){
-            input[i][j][0] = val & 1;
-            input[i][j][1] = val2 & 1;
-            correct[i][j][0] = valc & 1;
+            data.input[i][j][0] = val & 1;
+            data.input[i][j][1] = val2 & 1;
+            data.correct[i][j][0] = valc & 1;
 
             val >>= 1;
             val2 >>= 1;
@@ -121,7 +116,7 @@ TEST_F(NetworkTest, NetworkFullLearn) {
         }
     }
 
-    myNetwork.learn(input, correct);
+    myNetwork.learn(data);
 
 }
 #endif
@@ -152,28 +147,27 @@ TEST_F(NetworkTest, NetworkCheckpoint) {
 
     Network myNetwork2("savetest");
 
-    // some sort of comparison between network 1 and 2
+    learning_data data({1, 2}, {1, 1}, 1, 1);
 
-    tensor input({1,2});
-    input.cpy({0,1});
-    tensor correct({1,1});
-    correct.cpy({1});
+    data.input[0][0].cpy({0,1});
+    data.correct[0][0].cpy({1});
 
     // make sure learn is the same
-    myNetwork.learn({{input}}, {{correct}});
+    myNetwork.learn(data);
     std::vector<tensor> output = myNetwork.getOutput();
 
-    myNetwork2.learn({{input}}, {{correct}});
+    data.reset();
+    myNetwork2.learn(data);
     std::vector<tensor> output2 = myNetwork2.getOutput();
 
     ASSERT_TRUE(output[0] == output2[0]);
 
 
     // make sure forward in still correct, showing whole sequence is the same
-    myNetwork.forward({input});
+    myNetwork.forward(data.input[0]);
     output = myNetwork.getOutput();
 
-    myNetwork2.forward({input});
+    myNetwork2.forward(data.input[0]);
     output2 = myNetwork2.getOutput();
 
     ASSERT_TRUE(output[0] == output2[0]);

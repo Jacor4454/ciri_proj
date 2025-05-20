@@ -25,6 +25,7 @@ class recursive : public BaseLayer{
     recursive(std::ifstream&);
     void setAcc(activations::accTypes);
     void setLearners(BaseLearnerSelector*);
+    void randomise();
     ~recursive();
 
     void forward(tensor&, const tensor&);

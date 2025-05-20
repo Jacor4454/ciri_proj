@@ -36,6 +36,7 @@ std::vector<int> BaseLayer::loadWeightsDims(std::ifstream& f){
 // load of errors to prevent implementing this class
 void BaseLayer::setAcc(activations::accTypes a){throw std::runtime_error("cannot set acc type in base layer");}
 void BaseLayer::setLearners(BaseLearnerSelector* bls){throw std::runtime_error("cannot set learner type in base layer");}
+void BaseLayer::randomise(){throw std::runtime_error("cannot randomise learner type in base layer");}
 BaseLayer::~BaseLayer(){}
 
 void BaseLayer::forward(tensor& output, const tensor& input){throw std::runtime_error("cannot forward base layer");}

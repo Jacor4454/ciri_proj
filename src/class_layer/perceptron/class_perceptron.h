@@ -19,6 +19,7 @@ class perceptron : public BaseLayer{
     perceptron(std::ifstream&);
     void setAcc(activations::accTypes);
     void setLearners(BaseLearnerSelector*);
+    void randomise();
     ~perceptron();
 
     void forward(tensor&, const tensor&);

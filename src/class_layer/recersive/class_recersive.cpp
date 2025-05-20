@@ -13,10 +13,8 @@ recursive::recursive(std::vector<int> in, std::vector<int> out):
     dweight = nullptr;
     drweight = nullptr;
     dbias = nullptr;
-    weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weights.getN()), inverse_sqrt(weights.getN()));
-    rWeights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(rWeights.getN()), inverse_sqrt(rWeights.getN()));
-    bias.set(0.0);
     acc = activations::ReLU;
+    bias.set(0.0);
     bls = new AlphaLearnerSelector(0.01);
 }
 
@@ -56,6 +54,16 @@ void recursive::setLearners(BaseLearnerSelector* bls_){
     dweight = bls->construct(&weights);
     drweight = bls->construct(&rWeights);
     dbias = bls->construct(&bias);
+}
+
+void recursive::randomise(){
+    if(acc == activations::Sigmoid || acc == activations::tanh){
+        weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weightsDims[0]), inverse_sqrt(weightsDims[0]));
+        rWeights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weightsDims[0]), inverse_sqrt(weightsDims[0]));
+    } else {
+        weights.normalRnd(BaseLayer::generator, sqrt(2.0/(weightsDims[0])));
+        rWeights.normalRnd(BaseLayer::generator, sqrt(2.0/(weightsDims[0])));
+    }
 }
 
 recursive::~recursive(){

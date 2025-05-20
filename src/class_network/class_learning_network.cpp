@@ -60,11 +60,13 @@ myServ("0.0.0.0", port)
         layers[i] = getLayer(ls[i].getLyrTyp(), dimss[i], dimss[i+1]);
         layers[i]->setAcc(ls[i].getAccTyp());
         layers[i]->setLearners(ls[i].getOppTyp());
+        layers[i]->randomise();
     }
     dimss[N] = o.getDims();
     layers[N-1] = getLayer(o.getLyrTyp(), dimss[N-1], dimss[N]);
     layers[N-1]->setAcc(o.getAccTyp());
     layers[N-1]->setLearners(o.getOppTyp());
+    layers[N-1]->randomise();
 
     lossType = o.getErrTyp();
 
@@ -283,12 +285,11 @@ std::string convArrToStr(std::vector<int> data){
     return ss.str();
 }
 
-void Network::learn(const std::vector<std::vector<tensor>>& input, const std::vector<std::vector<tensor>>& correct, std::function<bool(const tensor&, const tensor&)> eval){
-    if(input.size() != correct.size())
+void Network::learn(learning_data& data){
+    if(data.input.size() != data.correct.size())
         throw std::runtime_error("input and lable have different ammounts of data");
 
-    int n = input.size();
-    std::vector<int> correctPredictions(n/100, 0);
+    std::vector<int> correctPredictions(data.input.size()*data.getEpoch()/100, 0);
 
     // setup restAPI
     myServ.addAPI("/", new Responce::File("./src/docs/index.html", ".html"), GET);
@@ -296,27 +297,39 @@ void Network::learn(const std::vector<std::vector<tensor>>& input, const std::ve
     
     Responce::JSON* json = new Responce::JSON();
     (*json)["data"] = convArrToStr(correctPredictions);
-    (*json)["length"] = std::to_string((int) n/100);
+    (*json)["length"] = std::to_string(correctPredictions.size());
+    (*json)["loss"] = "999";
     myServ.addAPI("/data.json", json, GET);
 
     int per = 0;
-    for(int i = 0; i < n; i++){
-        forward(input[i]);
-        backward(correct[i]);
+    std::vector<tensor>* inpp;
+    std::vector<tensor>* corp;
+    data.getNext(inpp, corp);
+    while(inpp != nullptr){
+        forward(*inpp);
+        backward(*corp);
 
         std::vector<tensor> output = getOutput();
         bool corr = true;
         for(int k = 0; k < output.size(); k++)
-            if(!eval(output[k], correct[i][k]))
+            if(!data.eval(output[k], (*corp)[k]))
                 corr = false;
         
         if(corr)
             per++;
-        if(i%100 == 99){
-            correctPredictions[i/100] = per;
+        if(data.getIndex()%100 == 99){
+            (*json).lock();
+            correctPredictions[data.getIndex()/100] = per;
             (*json)["data"] = convArrToStr(correctPredictions);
             per = 0;
+            float f = 0;
+            for(int j = 0; j < output.size(); j++)
+                f += output[j].loss((*corp)[j], lossType);
+            (*json)["loss"] = std::to_string(f);
+            (*json).unlock();
         }
+    
+        data.getNext(inpp, corp);
     }
 }
 
@@ -372,3 +385,5 @@ void Network::save(const std::string& s, const save::savetype st){
     f.write(handshake, sizeof(char)*3);
     f.close();
 }
+
+#include "class_data_obj.cpp"

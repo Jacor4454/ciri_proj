@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-// #define NETWORK_FULLLEARN
-// #define TENSOR_BENCHMARK
+#define NETWORK_FULLLEARN
+#define TENSOR_BENCHMARK
 
 // all test includes
 #include "tensorTest.cpp"

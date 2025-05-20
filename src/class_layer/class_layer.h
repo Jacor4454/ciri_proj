@@ -16,6 +16,7 @@ class BaseLayer{
 
     virtual void setAcc(activations::accTypes);
     virtual void setLearners(BaseLearnerSelector*);
+    virtual void randomise();
     virtual ~BaseLayer();
 
     virtual void forward(tensor&, const tensor&);
