@@ -1,14 +1,14 @@
 #include "class_learning_network.h"
 
 // netowrk construction helper to get the network from template
-BaseLayer* getLayer(layers::layerTypes l, std::vector<int>& in, std::vector<int>& out, activations::accTypes acc){
+BaseLayer* getLayer(layers::layerTypes l, std::vector<int>& in, std::vector<int>& out){
     BaseLayer* output = nullptr;
     switch(l){
         case layers::perceptron:
-            output = new perceptron(in, out, acc);
+            output = new perceptron(in, out);
             break;
         case layers::recursive:
-            output = new recursive(in, out, acc);
+            output = new recursive(in, out);
             break;
         default:
             throw std::runtime_error("layer not implemented in network constructor");
@@ -57,12 +57,16 @@ myServ("0.0.0.0", port)
     dimss[0] = i.getDims();
     for(int i = 0; i < N-1; i++){
         dimss[i+1] = ls[i].getDims();
-        layers[i] = getLayer(ls[i].getLyrTyp(), dimss[i], dimss[i+1], ls[i].getAccTyp());
+        layers[i] = getLayer(ls[i].getLyrTyp(), dimss[i], dimss[i+1]);
+        layers[i]->setAcc(ls[i].getAccTyp());
         layers[i]->setLearners(ls[i].getOppTyp());
+        layers[i]->randomise();
     }
     dimss[N] = o.getDims();
-    layers[N-1] = getLayer(o.getLyrTyp(), dimss[N-1], dimss[N], o.getAccTyp());
+    layers[N-1] = getLayer(o.getLyrTyp(), dimss[N-1], dimss[N]);
+    layers[N-1]->setAcc(o.getAccTyp());
     layers[N-1]->setLearners(o.getOppTyp());
+    layers[N-1]->randomise();
 
     lossType = o.getErrTyp();
 

@@ -23,8 +23,8 @@ int main(){
     f.close();
     
     std::ifstream f2("labels.txt");
+    int ind;
     for(int i = 0; i < n; i++){
-        int ind;
         f2 >> ind;
         data.correct[i][0].set(0.0);
         data.correct[i][0][ind] = 1;

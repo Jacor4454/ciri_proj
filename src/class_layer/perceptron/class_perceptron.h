@@ -15,10 +15,11 @@ class perceptron : public BaseLayer{
     BaseLearnerSelector* bls;
 
     public:
-    perceptron(std::vector<int>, std::vector<int>, activations::accTypes = activations::ReLU);
+    perceptron(std::vector<int>, std::vector<int>);
     perceptron(std::ifstream&);
     void setAcc(activations::accTypes);
     void setLearners(BaseLearnerSelector*);
+    void randomise();
     ~perceptron();
 
     void forward(tensor&, const tensor&);

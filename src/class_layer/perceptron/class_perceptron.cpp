@@ -1,6 +1,6 @@
 #include "class_perceptron.h"
 
-perceptron::perceptron(std::vector<int> in, std::vector<int> out, activations::accTypes acc_):
+perceptron::perceptron(std::vector<int> in, std::vector<int> out):
     weightsDims(BaseLayer::makeWeightsDims(in, out)),
     weights(weightsDims),
     bias(out),
@@ -9,11 +9,7 @@ perceptron::perceptron(std::vector<int> in, std::vector<int> out, activations::a
     // we want to only define if learning yk
     dweight = nullptr;
     dbias = nullptr;
-    acc = acc_;
-    if(acc == activations::Sigmoid || acc == activations::tanh)
-        weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(in[0]*in[1]), inverse_sqrt(in[0]*in[1]));
-    else
-        weights.normalRnd(BaseLayer::generator, sqrt(2.0/(in[0]*in[1])));
+    acc = activations::ReLU;
     bias.set(0.0);
     bls = new AlphaLearnerSelector(0.01);
 }
@@ -47,6 +43,13 @@ void perceptron::setLearners(BaseLearnerSelector* bls_){
     bls = bls_;
     dweight = bls->construct(&weights);
     dbias = bls->construct(&bias);
+}
+
+void perceptron::randomise(){
+    if(acc == activations::Sigmoid || acc == activations::tanh)
+        weights.xavierRnd(BaseLayer::generator, -1*inverse_sqrt(weightsDims[0]), inverse_sqrt(weightsDims[0]));
+    else
+        weights.normalRnd(BaseLayer::generator, sqrt(2.0/(weightsDims[0])));
 }
 
 perceptron::~perceptron(){

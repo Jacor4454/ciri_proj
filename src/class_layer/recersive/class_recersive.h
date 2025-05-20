@@ -21,10 +21,11 @@ class recursive : public BaseLayer{
     
 
     public:
-    recursive(std::vector<int>, std::vector<int>, activations::accTypes = activations::ReLU);
+    recursive(std::vector<int>, std::vector<int>);
     recursive(std::ifstream&);
     void setAcc(activations::accTypes);
     void setLearners(BaseLearnerSelector*);
+    void randomise();
     ~recursive();
 
     void forward(tensor&, const tensor&);
